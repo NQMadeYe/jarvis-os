@@ -30,9 +30,7 @@
 .left-column>.panel:nth-child(2) .panel-head small{font-size:0!important}
 .left-column>.panel:nth-child(2) .panel-head small:after{content:"REAL SNAPSHOT";font-size:.5rem;color:#8d969b;letter-spacing:.1em}
 
-/* Rename Event Stream to the simpler EVENTS surface. */
-.left-column>.panel:last-child .panel-head strong{font-size:0!important}
-.left-column>.panel:last-child .panel-head strong:after{content:"EVENTS";font-size:.74rem;color:#d7dde0;letter-spacing:.11em}
+/* Left rail panel titles now come directly from the active domain. */
 
 /* Right rail: smaller, quieter, more futuristic. */
 .right-column>.panel:first-child,.right-column>.chat-panel{min-height:0!important;border:0!important;border-top:1px solid rgba(0,229,255,.24)!important;border-bottom:1px solid rgba(255,255,255,.07)!important;background:linear-gradient(180deg,rgba(12,13,15,.38),rgba(4,6,8,.18))!important;box-shadow:none!important}
