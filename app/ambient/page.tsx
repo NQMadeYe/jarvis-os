@@ -25,8 +25,8 @@ export default function AmbientPage() {
       <div className="ambient-grid" />
 
       <div className="ambient-identity">
-        <strong>HIMIE JOHNSON VENTURES</strong>
-        <span>DWIGHT // FOUNDER & OPERATOR</span>
+        <strong>JARVIS COMMAND</strong>
+        <span>OPERATOR // SETUP REQUIRED</span>
       </div>
 
       <section className="ambient-center" aria-live="polite">
