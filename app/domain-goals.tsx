@@ -90,6 +90,7 @@ type TradingGoalPayoutSummary = {
   connected?: boolean;
   lifetimeCount?: number;
   nextPayoutNumber?: number;
+  totalNet?: number;
   latest?: { approvedAt: string | null; payoutAmount?: number; traderNetAmount: number } | null;
 };
 
@@ -332,6 +333,22 @@ export default function DomainGoals({ domain, events }: { domain: Domain; events
 
 
   useEffect(() => {
+    if (domain !== "FINANCE") return;
+    let cancelled = false;
+    async function refreshFinancePayouts() {
+      try {
+        const response = await fetch("/api/trading/payouts?range=ALL", { cache: "no-store" });
+        if (!response.ok) return;
+        const body = (await response.json()) as { summary?: TradingGoalPayoutSummary };
+        if (!cancelled && body.summary) setTradingPayouts(body.summary);
+      } catch {}
+    }
+    void refreshFinancePayouts();
+    const timer = window.setInterval(refreshFinancePayouts, 15_000);
+    return () => { cancelled = true; window.clearInterval(timer); };
+  }, [domain]);
+
+  useEffect(() => {
     if (domain !== "TRADING") return;
 
     const refreshLocal = () => setTradingAccount(loadTradingGoalSnapshot());
@@ -520,18 +537,45 @@ export default function DomainGoals({ domain, events }: { domain: Domain; events
     const metrics = finance?.metrics;
     if (!metrics) return [{ name: "FINANCE STATE", status: "LOADING", detail: "Reading the latest Finance runtime state.", progress: null, active: true }];
 
-    const step = metrics.personalNetWorth < 100_000 ? 5_000 : 10_000;
-    const floor = Math.floor(Math.max(0, metrics.personalNetWorth) / step) * step;
-    const target = floor + step;
-    const wealthProgress = metrics.personalNetWorth <= floor ? 0 : Math.min(100, ((metrics.personalNetWorth - floor) / step) * 100);
-    const cash100M = Math.max(0, Math.min(100, (metrics.liquidity / 100_000_000) * 100));
+    const netWorthTarget = 5_000;
+    const netWorthProgress = Math.max(0, Math.min(100, (metrics.personalNetWorth / netWorthTarget) * 100));
+    const payoutTarget = 1_000;
+    const payoutNet = Math.max(0, tradingPayouts?.totalNet ?? 0);
+    const payoutProgress = Math.max(0, Math.min(100, (payoutNet / payoutTarget) * 100));
 
     return [
-      { name: "DEBT FREEDOM", status: metrics.personalDebt <= 0 ? "DONE" : "ACTIVE", detail: metrics.personalDebt <= 0 ? "$0 personal revolving debt." : `$${metrics.personalDebt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} personal debt remains.`, progress: metrics.personalDebt <= 0 ? 100 : null, active: metrics.personalDebt > 0 },
-      { name: `NEXT $${target.toLocaleString()} NET WORTH`, status: metrics.personalNetWorth >= target ? "DONE" : "ACTIVE", detail: metrics.personalNetWorth < 0 ? "0% until adjusted net worth is positive." : `Current adjusted net worth: $${metrics.personalNetWorth.toLocaleString(undefined, { maximumFractionDigits: 2 })}.`, progress: wealthProgress, active: metrics.personalDebt <= 0 },
-      { name: "MOVE OUT", status: "SETUP", detail: "Needs locked housing budget, cash floor and income-consistency gates.", progress: null },
-      { name: "GR SUPRA", status: "SETUP", detail: "Unlocks only when purchase + insurance + post-purchase cash gates are safe.", progress: null },
-      { name: "$100M CASH", status: "ULTIMATE", detail: `$${metrics.liquidity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} current connected cash.`, progress: cash100M },
+      {
+        name: "$5K NET WORTH",
+        status: metrics.personalNetWorth >= netWorthTarget ? "DONE" : "ACTIVE",
+        detail: `Current net worth ${metrics.personalNetWorth.toLocaleString(undefined, { maximumFractionDigits: 2 })} · ${Math.max(0, netWorthTarget - metrics.personalNetWorth).toLocaleString(undefined, { maximumFractionDigits: 2 })} remaining.`,
+        progress: netWorthProgress,
+        active: metrics.personalNetWorth < netWorthTarget,
+      },
+      {
+        name: "MOVE OUT",
+        status: "SETUP",
+        detail: "Build the cash, income consistency, and monthly budget needed to move out comfortably.",
+        progress: null,
+      },
+      {
+        name: "$1K IN PAYOUTS",
+        status: payoutNet >= payoutTarget ? "DONE" : "ACTIVE",
+        detail: `${payoutNet.toLocaleString(undefined, { maximumFractionDigits: 2 })} / $1,000 net payouts recorded.`,
+        progress: payoutProgress,
+        active: payoutNet < payoutTarget,
+      },
+      {
+        name: "HELLCAT",
+        status: "SETUP",
+        detail: "Track purchase readiness only after cash flow, reserves, insurance, and ownership costs make sense.",
+        progress: null,
+      },
+      {
+        name: "WEALTH",
+        status: "ULTIMATE",
+        detail: "Long-term wealth building across cash, investments, business equity, and owned assets.",
+        progress: null,
+      },
     ];
   }, [domain, events, finance, habits, summary, todayKey, tradingAccount, tradingPayouts, tradingRuntime, lifePlan]);
 
