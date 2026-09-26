@@ -14,65 +14,11 @@ export type TradingPayout = {
   source: string;
 };
 
-const KEY = "jarvis:trading:payouts:v1";
+const KEY = "jarvis:trading:payouts:donye:v1";
 const TTL = 60 * 60 * 24 * 365;
 
-const MANUAL_PAYOUTS: TradingPayout[] = [
-  {
-    id: "manual-lucid-2026-09-07-901",
-    firm: "Lucid Trading",
-    accountLabel: null,
-    requestedAt: "2026-09-07T12:00:00-05:00",
-    approvedAt: "2026-09-07T12:00:00-05:00",
-    payoutAmount: 901,
-    grossAmount: 901,
-    traderNetAmount: 810,
-    splitPercent: 90,
-    status: "PAID",
-    source: "LUCID PAYOUT HISTORY + DWIGHT RECORD",
-  },
-  {
-    id: "manual-lucid-2026-07-29-80393",
-    firm: "Lucid Trading",
-    accountLabel: null,
-    requestedAt: "2026-07-29T12:00:00-05:00",
-    approvedAt: "2026-07-29T12:00:00-05:00",
-    payoutAmount: 803.93,
-    grossAmount: 803.93,
-    traderNetAmount: 803.93,
-    splitPercent: null,
-    status: "PAID",
-    source: "LUCID PAYOUT HISTORY",
-  },
-  {
-    id: "manual-lucid-2026-07-16-105185",
-    firm: "Lucid Trading",
-    accountLabel: null,
-    requestedAt: "2026-07-16T12:00:00-05:00",
-    approvedAt: "2026-07-16T12:00:00-05:00",
-    payoutAmount: 1051.85,
-    grossAmount: 1051.85,
-    traderNetAmount: 1051.85,
-    splitPercent: null,
-    status: "PAID",
-    source: "LUCID PAYOUT HISTORY",
-  },
-  {
-    id: "manual-topstep-525",
-    firm: "Topstep",
-    accountLabel: null,
-    requestedAt: null,
-    approvedAt: null,
-    payoutAmount: 525,
-    grossAmount: 525,
-    traderNetAmount: 525,
-    splitPercent: null,
-    status: "PAID",
-    source: "DWIGHT MANUAL RECORD",
-  },
-]
-
-const LIFETIME_PAYOUT_COUNT_FLOOR = 4;
+const MANUAL_PAYOUTS: TradingPayout[] = [];
+const LIFETIME_PAYOUT_COUNT_FLOOR = 0;
 
 async function readPayouts(): Promise<TradingPayout[]> {
   try {
