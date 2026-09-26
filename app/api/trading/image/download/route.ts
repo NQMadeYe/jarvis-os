@@ -2,8 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 
-const fallbackUrl = "https://cubkgxdhkehmzczbvczy.supabase.co";
-const fallbackPublishableKey = "sb_publishable_90f_kCgqpgfC8NvoviAyXg_anParHd2";
+const fallbackUrl = "https://plhjozsbxnycfehncisf.supabase.co";
+const fallbackPublishableKey = "sb_publishable_Gda1AR9pra1kKI4IAtdxYg_r1g4GXdR";
 
 function safeFileName(value: string) {
   return value.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 120) || "trade-image.jpg";
