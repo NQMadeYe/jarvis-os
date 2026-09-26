@@ -74,10 +74,52 @@ const TRADING_RULES = [
   "Enter when price taps zone and target a 1:2 or 1:3",
 ] as const;
 
-function tradingRulesStorageKey() {
+const TRADING_RULES_KEY = "jarvis-trading-rules-v1";
+
+function tradingRulesDayKey() {
   const now = new Date();
-  const day = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  return `jarvis-trading-rules-v1:${day}`;
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
+function loadTradingRuleChecks() {
+  const day = tradingRulesDayKey();
+  try {
+    const stored = window.localStorage.getItem(TRADING_RULES_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as Record<string, unknown>;
+      const value = parsed?.[day];
+      if (Array.isArray(value) && value.length === TRADING_RULES.length) return value.map(Boolean);
+    }
+
+    const legacyKey = `${TRADING_RULES_KEY}:${day}`;
+    const legacy = window.localStorage.getItem(legacyKey);
+    if (legacy) {
+      const parsed = JSON.parse(legacy);
+      if (Array.isArray(parsed) && parsed.length === TRADING_RULES.length) {
+        const checks = parsed.map(Boolean);
+        window.localStorage.setItem(TRADING_RULES_KEY, JSON.stringify({ [day]: checks }));
+        window.localStorage.removeItem(legacyKey);
+        window.dispatchEvent(new Event("jarvis-trading-rules-updated"));
+        return checks;
+      }
+    }
+  } catch {}
+  return TRADING_RULES.map(() => false);
+}
+
+function saveTradingRuleChecks(checks: boolean[]) {
+  const day = tradingRulesDayKey();
+  let history: Record<string, boolean[]> = {};
+  try {
+    const stored = window.localStorage.getItem(TRADING_RULES_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) history = parsed;
+    }
+  } catch {}
+  history[day] = checks;
+  window.localStorage.setItem(TRADING_RULES_KEY, JSON.stringify(history));
+  window.dispatchEvent(new Event("jarvis-trading-rules-updated"));
 }
 
 export default function WorkV2() {
@@ -98,20 +140,20 @@ export default function WorkV2() {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(tradingRulesStorageKey());
-      if (!stored) return;
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length === TRADING_RULES.length) {
-        setTradingRuleChecks(parsed.map(Boolean));
-      }
-    } catch {}
+    const refreshRules = () => setTradingRuleChecks(loadTradingRuleChecks());
+    refreshRules();
+    window.addEventListener("jarvis-trading-rules-updated", refreshRules);
+    window.addEventListener("focus", refreshRules);
+    return () => {
+      window.removeEventListener("jarvis-trading-rules-updated", refreshRules);
+      window.removeEventListener("focus", refreshRules);
+    };
   }, []);
 
   function toggleTradingRule(index: number) {
     setTradingRuleChecks((current) => {
       const next = current.map((checked, ruleIndex) => ruleIndex === index ? !checked : checked);
-      try { window.localStorage.setItem(tradingRulesStorageKey(), JSON.stringify(next)); } catch {}
+      try { saveTradingRuleChecks(next); } catch {}
       return next;
     });
   }
