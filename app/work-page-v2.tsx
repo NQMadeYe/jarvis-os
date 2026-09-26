@@ -62,7 +62,6 @@ type ApiResponse = {
 const sectors = [
   { id: "TRADING" as const, icon: TrendingUp, title: "TRADING", signal: "PASS → PAYOUT" },
   { id: "FINANCE" as const, icon: WalletCards, title: "FINANCE", signal: "BUILD CAPITAL" },
-  { id: "SENTRYOPS" as const, icon: BriefcaseBusiness, title: "SENTRYOPS", signal: "BUILD → CUSTOMER" },
   { id: "LIFE" as const, icon: Target, title: "LIFE", signal: "ALIGN" },
 ];
 
@@ -84,7 +83,7 @@ export default function WorkV2() {
 
   function hydrateFromState() {
     const saved = loadJarvisState();
-    setDomain(saved.activeDomain);
+    setDomain(saved.activeDomain === "SENTRYOPS" ? "TRADING" : saved.activeDomain);
     setMessages(saved.messages);
     setMemories(saved.memories);
     setGoals(saved.goals);
@@ -134,7 +133,7 @@ export default function WorkV2() {
 
   const currentSector = useMemo(() => sectors.find((item) => item.id === domain) ?? sectors[0], [domain]);
   const SectorIcon = currentSector.icon;
-  const runtimeEvents = systemStatus?.events ?? [];
+  const runtimeEvents = (systemStatus?.events ?? []).filter((event) => event.domain !== "SENTRYOPS");
   const systemMode = systemStatus?.online ? systemStatus.mode : "STARTING";
 
   async function sendMessage(event?: FormEvent) {
@@ -186,7 +185,7 @@ export default function WorkV2() {
           <div className="status-block"><span>LOCAL DATE</span><b>{date}</b></div>
           <div className="status-block"><span>LOCAL TIME</span><b>{time}</b></div>
         </div>
-        <div className="company-zone"><div><div className="company">JARVIS COMMAND</div><div className="micro company-micro">OPERATOR // SETUP REQUIRED</div></div><div className="brand-mark"><BriefcaseBusiness size={18} /></div></div>
+        <div className="company-zone"><div><div className="company">NQMADE YE</div><div className="micro company-micro">Donye//Trader & entreprenuer</div></div><div className="brand-mark"><BriefcaseBusiness size={18} /></div></div>
       </header>
 
       <section className="workspace">
@@ -256,7 +255,7 @@ export default function WorkV2() {
           </Panel>
 
           <Panel title="DOMAIN" corner={currentSector.signal}>
-            <div className="sector-feature"><SectorIcon /><div><span>{currentSector.title}</span><strong>{currentSector.signal}</strong><small>{domain === "FINANCE" ? "CFO watches money, debt, credit, capital and lifestyle readiness." : domain === "TRADING" ? "Pass → funded → payout → consistency → scale." : domain === "SENTRYOPS" ? "Prototype → pilot → first customer → repeatable sales." : "Daily alignment with the larger plan."}</small></div></div>
+            <div className="sector-feature"><SectorIcon /><div><span>{currentSector.title}</span><strong>{currentSector.signal}</strong><small>{domain === "FINANCE" ? "CFO watches money, debt, credit, capital and lifestyle readiness." : domain === "TRADING" ? "Pass → funded → payout → consistency → scale." : "Daily alignment with the larger plan."}</small></div></div>
           </Panel>
         </aside>
       </section>
