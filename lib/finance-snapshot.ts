@@ -24,10 +24,5 @@ export const FINANCE_DEBTS: FinanceDebt[] = FINANCE_IMPORT.accounts.filter(a => 
     due: liability?.due ?? null, ownership: a.ownership === "AUTHORIZED_USER" ? "AUTHORIZED_USER" : "PERSONAL", limit: a.limit };
 });
 export const FINANCE_ACCOUNT_PURPOSES = FINANCE_IMPORT.accounts.map(a => ({ institution: a.institution, role: a.role, detail: `${a.name} · $${a.current.toFixed(2)} reported balance` }));
-export const FINANCE_GOALS: FinanceGoalReadiness[] = [
-  { name: "DEBT FREEDOM", state: totals.personalDebt > 0 ? "RED" : "GREEN", progress: totals.personalDebt > 0 ? null : 100, current: `$${totals.personalDebt.toFixed(2)} personal debt`, target: "$0", blocker: "Protect operating cash while clearing personal balances." },
-  { name: "$10K LIQUID", state: "RED", progress: totals.liquidity / 100, current: `$${totals.liquidity.toFixed(2)}`, target: "$10,000", blocker: "Reported bank balances; available cash is tracked separately." },
-  { name: "NEXT WEALTH MILESTONE", state: "RED", progress: NET_WORTH_MILESTONE.progress, current: `$${totals.personalNetWorth.toFixed(2)}`, target: `$${NET_WORTH_MILESTONE.target.toLocaleString("en-US")}`, blocker: "Authorized-user debt excluded." },
-  { name: "$100M CASH", state: "RED", progress: totals.liquidity / 1_000_000, current: `$${totals.liquidity.toFixed(2)}`, target: "$100,000,000", blocker: "Long-term destination. One measurable stage at a time." },
-];
+export const FINANCE_GOALS: FinanceGoalReadiness[] = [];
 export const FINANCE_STAGES = ["DEBT", "STABILITY", "RESERVES", "CREDIT", "CAPITAL", "INVESTING", "ASSETS"] as const;
