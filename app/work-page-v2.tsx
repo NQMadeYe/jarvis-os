@@ -81,44 +81,25 @@ function tradingRulesDayKey() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
-function loadTradingRuleChecks() {
-  const day = tradingRulesDayKey();
+function loadTradingRuleChecks(): boolean[] {
   try {
-    const stored = window.localStorage.getItem(TRADING_RULES_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored) as Record<string, unknown>;
-      const value = parsed?.[day];
-      if (Array.isArray(value) && value.length === TRADING_RULES.length) return value.map(Boolean);
+    const raw = window.localStorage.getItem(TRADING_RULES_KEY);
+    if (!raw) return TRADING_RULES.map(() => false);
+    const parsed = JSON.parse(raw) as { day?: string; checks?: unknown[] };
+    if (parsed.day !== tradingRulesDayKey() || !Array.isArray(parsed.checks) || parsed.checks.length !== TRADING_RULES.length) {
+      return TRADING_RULES.map(() => false);
     }
-
-    const legacyKey = `${TRADING_RULES_KEY}:${day}`;
-    const legacy = window.localStorage.getItem(legacyKey);
-    if (legacy) {
-      const parsed = JSON.parse(legacy);
-      if (Array.isArray(parsed) && parsed.length === TRADING_RULES.length) {
-        const checks = parsed.map(Boolean);
-        window.localStorage.setItem(TRADING_RULES_KEY, JSON.stringify({ [day]: checks }));
-        window.localStorage.removeItem(legacyKey);
-        window.dispatchEvent(new Event("jarvis-trading-rules-updated"));
-        return checks;
-      }
-    }
-  } catch {}
-  return TRADING_RULES.map(() => false);
+    return parsed.checks.map(Boolean);
+  } catch {
+    return TRADING_RULES.map(() => false);
+  }
 }
 
 function saveTradingRuleChecks(checks: boolean[]) {
-  const day = tradingRulesDayKey();
-  let history: Record<string, boolean[]> = {};
-  try {
-    const stored = window.localStorage.getItem(TRADING_RULES_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) history = parsed;
-    }
-  } catch {}
-  history[day] = checks;
-  window.localStorage.setItem(TRADING_RULES_KEY, JSON.stringify(history));
+  window.localStorage.setItem(TRADING_RULES_KEY, JSON.stringify({
+    day: tradingRulesDayKey(),
+    checks,
+  }));
   window.dispatchEvent(new Event("jarvis-trading-rules-updated"));
 }
 
