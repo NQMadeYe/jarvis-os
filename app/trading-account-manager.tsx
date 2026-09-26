@@ -846,8 +846,10 @@ export default function TradingAccountManager({
     [phaseEntries],
   );
   const tradingDays = useMemo(
-    () => phaseEntries.filter(([, entry]) => entry.pnl !== null || entry.notes.trim() || entry.hasImage).length,
-    [phaseEntries],
+    () => account?.stage === "FUNDED"
+      ? phaseEntries.filter(([, entry]) => typeof entry.pnl === "number" && entry.pnl >= FUNDED_MIN_QUALIFYING_PNL).length
+      : phaseEntries.filter(([, entry]) => entry.pnl !== null || entry.notes.trim() || entry.hasImage).length,
+    [account?.stage, phaseEntries],
   );
 
   const targetBalance = account
@@ -1018,6 +1020,7 @@ export default function TradingAccountManager({
       stage: "FUNDED",
       label: /EVAL/i.test(account.label) ? account.label.replace(/EVAL/gi, "FUNDED") : account.label,
       currentBalance: account.startBalance,
+      requiredTradingDays: 5,
     });
     setSelectedDay(dateKey(new Date()));
     setMonthCursor(new Date());
@@ -1423,7 +1426,7 @@ export default function TradingAccountManager({
 
         {account.stage === "FUNDED" ? (
           <div className="funded-days-progress">
-            <div><span>PAYOUT / QUALIFYING DAYS</span><b>{tradingDays} / {account.requiredTradingDays}</b></div>
+            <div><span>PAYOUT / QUALIFYING DAYS</span><b>{tradingDays} / {account.requiredTradingDays}</b><small>$150+ DAY MINIMUM</small></div>
             <div className="funded-days-track"><span style={{ width: `${dayProgress}%` }} /></div>
           </div>
         ) : null}
@@ -1517,7 +1520,7 @@ export default function TradingAccountManager({
               ) : (
                 <>
                   <label><span>BUFFER REQUIRED</span><input inputMode="decimal" value={account.fundedBuffer} onChange={(event) => patchAccount({ fundedBuffer: parseNumber(event.target.value, account.fundedBuffer) })} /></label>
-                  <label><span>REQUIRED DAYS</span><input inputMode="numeric" value={account.requiredTradingDays} onChange={(event) => patchAccount({ requiredTradingDays: Math.max(1, Math.round(parseNumber(event.target.value, account.requiredTradingDays))) })} /></label>
+                  <label><span>REQUIRED DAYS ($150+)</span><input type="number" min="1" max="99" inputMode="numeric" value={account.requiredTradingDays} onFocus={(event)=>event.currentTarget.select()} onChange={(event) => patchAccount({ requiredTradingDays: Math.max(1, Math.min(99, Math.round(parseNumber(event.target.value, account.requiredTradingDays)))) })} /></label>
                 </>
               )}
             </div>
