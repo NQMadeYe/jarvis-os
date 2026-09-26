@@ -185,7 +185,7 @@ export default function WorkV2() {
           <div className="status-block"><span>LOCAL DATE</span><b>{date}</b></div>
           <div className="status-block"><span>LOCAL TIME</span><b>{time}</b></div>
         </div>
-        <div className="company-zone"><div><div className="company">NQMADE YE</div><div className="micro company-micro">Donye//Trader & entreprenuer</div></div><div className="brand-mark"><BriefcaseBusiness size={18} /></div></div>
+        <div className="company-zone"><div><div className="company">NQMADE YE</div><div className="micro company-micro">DONYE//TRADER & ENTREPRENUER</div></div><div className="brand-mark"><BriefcaseBusiness size={18} /></div></div>
       </header>
 
       <section className="workspace">
