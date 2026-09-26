@@ -1,14 +1,14 @@
 :root {
   --bg: #030303;
   --panel: rgba(8, 8, 8, .88);
-  --cyan: #ff2d2d;
+  --cyan: #00e5ff;
   --cyan2: #f5f5f5;
   --dim: #6f6f6f;
   --line: rgba(255, 255, 255, .11);
   --muted: #8f8f8f;
   --text: #f4f4f4;
-  --jarvis-red: #ff2d2d;
-  --jarvis-red-soft: #c82020;
+  --jarvis-red: #00e5ff;
+  --jarvis-red-soft: #0aa7c4;
   --jarvis-white: #f5f5f5;
   --jarvis-gray: #8a8a8a;
   --jarvis-dark: #090909;
@@ -39,7 +39,7 @@ body {
 }
 
 .topbar {
-  border-bottom-color: rgba(255, 45, 45, .22) !important;
+  border-bottom-color: rgba(0, 229, 255, .22) !important;
   background: rgba(3, 3, 3, .95) !important;
   box-shadow: 0 1px 0 rgba(255,255,255,.025);
 }
@@ -59,7 +59,7 @@ body {
 }
 
 .brand {
-  text-shadow: 0 0 12px rgba(255, 45, 45, .34) !important;
+  text-shadow: 0 0 12px rgba(0, 229, 255, .34) !important;
 }
 
 .company {
@@ -102,7 +102,7 @@ body {
 .event i,
 .finance-sync i {
   background: var(--jarvis-red) !important;
-  box-shadow: 0 0 9px rgba(255, 45, 45, .72) !important;
+  box-shadow: 0 0 9px rgba(0, 229, 255, .72) !important;
 }
 
 .panel {
@@ -116,7 +116,7 @@ body {
 }
 
 .panel-rule {
-  background: linear-gradient(90deg, rgba(255,45,45,.34), rgba(255,255,255,.06), transparent) !important;
+  background: linear-gradient(90deg, rgba(0,229,255,.34), rgba(255,255,255,.06), transparent) !important;
 }
 
 .mission-copy,
@@ -198,16 +198,16 @@ body {
 }
 
 .radar {
-  border-color: rgba(255, 45, 45, .32) !important;
+  border-color: rgba(0, 229, 255, .32) !important;
 }
 
 .radar.inner {
-  border-color: rgba(255, 45, 45, .52) !important;
+  border-color: rgba(0, 229, 255, .52) !important;
 }
 
 .sweep {
   background: linear-gradient(var(--jarvis-red), transparent) !important;
-  box-shadow: 0 0 10px rgba(255,45,45,.62) !important;
+  box-shadow: 0 0 10px rgba(0,229,255,.62) !important;
 }
 
 .axis {
@@ -216,7 +216,7 @@ body {
 
 .core-node {
   border-color: var(--jarvis-red) !important;
-  box-shadow: inset 0 0 28px rgba(255,45,45,.055), 0 0 20px rgba(255,45,45,.08) !important;
+  box-shadow: inset 0 0 28px rgba(0,229,255,.055), 0 0 20px rgba(0,229,255,.08) !important;
 }
 
 .core-node span {
@@ -245,9 +245,9 @@ body {
 .domain-switcher button.active,
 .domain-matrix button.selected {
   color: var(--jarvis-white) !important;
-  border-color: rgba(255,45,45,.64) !important;
+  border-color: rgba(0,229,255,.64) !important;
   background: rgba(50, 5, 5, .32) !important;
-  box-shadow: inset 0 0 18px rgba(255,45,45,.035), 0 0 14px rgba(255,45,45,.045) !important;
+  box-shadow: inset 0 0 18px rgba(0,229,255,.035), 0 0 14px rgba(0,229,255,.045) !important;
 }
 
 .domain-matrix b {
@@ -255,7 +255,7 @@ body {
 }
 
 .command-box {
-  box-shadow: 0 0 24px rgba(255,45,45,.025) !important;
+  box-shadow: 0 0 24px rgba(0,229,255,.025) !important;
 }
 
 .command-box input {
@@ -275,21 +275,21 @@ body {
 }
 
 .finance-titlebar {
-  border-bottom-color: rgba(255,45,45,.22) !important;
+  border-bottom-color: rgba(0,229,255,.22) !important;
 }
 
 .account-role-top b {
   color: var(--jarvis-red) !important;
-  border-color: rgba(255,45,45,.22) !important;
+  border-color: rgba(0,229,255,.22) !important;
 }
 
 .finance-roadmap {
   color: var(--jarvis-red) !important;
-  background: linear-gradient(90deg, rgba(255,45,45,.055), rgba(8,8,8,.75)) !important;
+  background: linear-gradient(90deg, rgba(0,229,255,.055), rgba(8,8,8,.75)) !important;
 }
 
 .footerbar {
-  border-top-color: rgba(255,45,45,.18) !important;
+  border-top-color: rgba(0,229,255,.18) !important;
 }
 
 @media (max-width: 760px) {
