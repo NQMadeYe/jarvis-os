@@ -38,12 +38,7 @@ export type JarvisClientState = {
 
 const STORAGE_KEY = "jarvis-os-state-v1";
 
-export const defaultGoals: JarvisGoal[] = [
-  { name: "Debt Freedom", value: 18, state: "RED" },
-  { name: "$10K Liquid", value: 34, state: "YELLOW" },
-  { name: "Move Out", value: 27, state: "RED" },
-  { name: "GR Supra", value: 11, state: "RED" },
-];
+export const defaultGoals: JarvisGoal[] = [];
 
 export const defaultState: JarvisClientState = {
   version: 1,
@@ -52,7 +47,7 @@ export const defaultState: JarvisClientState = {
     {
       role: "assistant",
       content:
-        "Core online. I’m running in foundation mode. Trading, Finance, SentryOps, and Life are separated. Tell me what you want to accomplish, and I’ll keep the reasoning in the correct lane.",
+        "Core online. I’m running in foundation mode. Trading, Finance, Business, and Life are separated. Tell me what you want to accomplish, and I’ll keep the reasoning in the correct lane.",
       createdAt: new Date().toISOString(),
     },
   ],
