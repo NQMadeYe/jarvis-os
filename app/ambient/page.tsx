@@ -26,7 +26,7 @@ export default function AmbientPage() {
 
       <div className="ambient-identity">
         <strong>NQMADE YE</strong>
-        <span>Donye//Trader & entreprenuer</span>
+        <span>DONYE//TRADER & ENTREPRENUER</span>
       </div>
 
       <section className="ambient-center" aria-live="polite">
