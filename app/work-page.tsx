@@ -349,8 +349,8 @@ export default function Work() {
         </div>
         <div className="company-zone">
           <div>
-            <div className="company">HIMIE JOHNSON VENTURES</div>
-            <div className="micro company-micro">DWIGHT // FOUNDER & OPERATOR</div>
+            <div className="company">JARVIS COMMAND</div>
+            <div className="micro company-micro">OPERATOR // SETUP REQUIRED</div>
           </div>
           <div className="brand-mark"><BriefcaseBusiness size={18} /></div>
         </div>
@@ -364,7 +364,7 @@ export default function Work() {
               <div><span>NEXT MOVE ENGINE</span><strong>ACTIVE</strong></div>
               <Gauge size={38} />
             </div>
-            <div className="tiny-row"><span>Primary user</span><b>DWIGHT</b></div>
+            <div className="tiny-row"><span>Primary user</span><b>UNCONFIGURED</b></div>
             <div className="tiny-row"><span>Current mode</span><b>{domain}</b></div>
             <div className="tiny-row"><span>Decision posture</span><b>CONTROLLED FAST</b></div>
             <div className="tiny-row"><span>Persistent memory</span><b>{memories.length} ITEMS</b></div>
@@ -497,7 +497,7 @@ export default function Work() {
             <div className="chat-log">
               {messages.map((message, index) => (
                 <div key={`${message.role}-${message.createdAt ?? index}-${index}`} className={`message ${message.role}`}>
-                  <div className="message-meta">{message.role === "assistant" ? "JARVIS" : "DWIGHT"}</div>
+                  <div className="message-meta">{message.role === "assistant" ? "JARVIS" : "YOU"}</div>
                   <p>{message.content}</p>
                 </div>
               ))}
