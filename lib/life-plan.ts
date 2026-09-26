@@ -2,7 +2,6 @@ import { Mission, PILLARS } from "./life-missions";
 export const LIFE_PLAN_KEY = "jarvis-life-command-v2";
 const LEGACY_LIFE_PLAN_KEY = "jarvis-life-plan-v1";
 export type Priority = { title: string; done: boolean };
-export type DailyIntelligence = { quote: string; practice: string; scripture: string };
 export type LifeDay = {
   priorities: Priority[];
   blocks: Record<string, boolean>;
@@ -10,7 +9,6 @@ export type LifeDay = {
   lesson: string;
   tomorrow: string;
   focusMinutes: number;
-  intelligence?: DailyIntelligence;
 };
 export type FocusSession = { title: string; endsAt: number; minutes: number; day: string };
 export type LifePlan = { version: 2; days: Record<string, LifeDay>; session: FocusSession | null; missions: Mission[]; area: string };
@@ -36,7 +34,6 @@ export function loadLifePlan(): LifePlan {
   if (![1, 2].includes(parsed.version) || !parsed.days || typeof parsed.days !== "object" || Array.isArray(parsed.days)) throw new Error("Unsupported Life history");
   for (const day of Object.values(parsed.days) as LifeDay[]) {
     if (!day || !Array.isArray(day.priorities) || day.priorities.length < 1 || day.priorities.length > 20 || day.priorities.some(p => !p || typeof p.title !== "string" || typeof p.done !== "boolean") || !day.blocks || typeof day.blocks !== "object" || [day.win, day.lesson, day.tomorrow].some(x => typeof x !== "string") || !Number.isFinite(day.focusMinutes)) throw new Error("Invalid Life history");
-    if (day.intelligence && [day.intelligence.quote, day.intelligence.practice, day.intelligence.scripture].some(value => typeof value !== "string")) throw new Error("Invalid daily intelligence");
   }
   const s = parsed.session;
   if (s && (typeof s.title !== "string" || !Number.isFinite(s.endsAt) || !Number.isFinite(s.minutes) || typeof s.day !== "string")) throw new Error("Invalid focus session");
@@ -64,11 +61,6 @@ export const REFLECTIONS = [
 ];
 export function reflectionIndex(day: string) {
   return [...day].reduce((sum, character) => (sum * 31 + character.charCodeAt(0)) >>> 0, 0);
-}
-export function dailyIntelligence(day: string): DailyIntelligence {
-  const reflection = REFLECTIONS[reflectionIndex(day) % REFLECTIONS.length] ?? REFLECTIONS[0] ?? ["", "", ""];
-  const [quote = "", practice = "", scripture = ""] = reflection;
-  return { quote, practice, scripture };
 }
 export const DOWNTIME = [
   { minutes: 5, title: "Reset your space", detail: "Make your bed or clear your desk. Leave the phone outside the room." },
