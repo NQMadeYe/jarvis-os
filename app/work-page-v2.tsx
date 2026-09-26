@@ -61,7 +61,7 @@ type ApiResponse = {
 
 const sectors = [
   { id: "TRADING" as const, icon: TrendingUp, title: "TRADING", signal: "PASS → PAYOUT" },
-  { id: "FINANCE" as const, icon: WalletCards, title: "FINANCE", signal: "$100M CASH" },
+  { id: "FINANCE" as const, icon: WalletCards, title: "FINANCE", signal: "BUILD CAPITAL" },
   { id: "SENTRYOPS" as const, icon: BriefcaseBusiness, title: "SENTRYOPS", signal: "BUILD → CUSTOMER" },
   { id: "LIFE" as const, icon: Target, title: "LIFE", signal: "ALIGN" },
 ];
@@ -186,7 +186,7 @@ export default function WorkV2() {
           <div className="status-block"><span>LOCAL DATE</span><b>{date}</b></div>
           <div className="status-block"><span>LOCAL TIME</span><b>{time}</b></div>
         </div>
-        <div className="company-zone"><div><div className="company">HIMIE JOHNSON VENTURES</div><div className="micro company-micro">DWIGHT // FOUNDER & OPERATOR</div></div><div className="brand-mark"><BriefcaseBusiness size={18} /></div></div>
+        <div className="company-zone"><div><div className="company">JARVIS COMMAND</div><div className="micro company-micro">OPERATOR // SETUP REQUIRED</div></div><div className="brand-mark"><BriefcaseBusiness size={18} /></div></div>
       </header>
 
       <section className="workspace">
@@ -249,7 +249,7 @@ export default function WorkV2() {
           <Panel title="JARVIS LINK" corner={activeProvider} className="chat-panel">
             <div className="brain-runtime"><span>CORE</span><strong>{activeProvider}</strong><small>{activeModel}</small></div>
             <div className="chat-log" style={{ height: 210 }}>
-              {messages.slice(-6).map((message, index) => <div key={`${message.role}-${message.createdAt ?? index}`} className={`message ${message.role}`}><div className="message-meta">{message.role === "assistant" ? "JARVIS" : "DWIGHT"}</div><p>{message.content}</p></div>)}
+              {messages.slice(-6).map((message, index) => <div key={`${message.role}-${message.createdAt ?? index}`} className={`message ${message.role}`}><div className="message-meta">{message.role === "assistant" ? "JARVIS" : "YOU"}</div><p>{message.content}</p></div>)}
               {busy && <div className="message assistant thinking"><div className="message-meta">JARVIS</div><p>Working<span>...</span></p></div>}
               <div ref={endRef} />
             </div>
