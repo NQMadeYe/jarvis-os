@@ -224,8 +224,9 @@ export default function WorkV2() {
       </header>
 
       <section className="workspace">
-        <div style={{ position: "absolute", top: 13, left: 300, right: 300, zIndex: 8, textAlign: "center", background: "rgba(2,8,13,.96)", padding: "5px 14px", color: "#f1f1f1", fontSize: ".68rem", letterSpacing: ".08em" }}>
-          BUILD DURABLE CASH FLOW, STRONGER CAPITAL, SCALABLE SOFTWARE, AND BETTER DECISIONS WITHOUT LOSING CONTROL.
+        <div className="command-memo-banner">
+          <strong>WAIT FOR SOMEONE TO LOSE</strong>
+          <span>BUILD DURABLE CASH FLOW, STRONGER CAPITAL, SCALABLE SOFTWARE, AND BETTER DECISIONS WITHOUT LOSING CONTROL.</span>
         </div>
 
         <aside className="left-column">
