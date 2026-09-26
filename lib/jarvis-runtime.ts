@@ -147,7 +147,7 @@ const LATEST_PULSE_KEY = "jarvis:runtime:latest-pulse:v1";
 const RECENT_EVENTS_KEY = "jarvis:runtime:recent-events:v1";
 const LAST_PULSE_AT_KEY = "jarvis:runtime:last-pulse-at:v1";
 const WORKFORCE_STATE_KEY = "jarvis:runtime:workforce:v1";
-const FINANCE_STATE_KEY = "jarvis:runtime:finance:v2";
+const FINANCE_STATE_KEY = "jarvis:runtime:finance:donye:v1";
 const DURABLE_RUNTIME_TTL = 60 * 60 * 24 * 365;
 
 type FallbackStore = Map<string, unknown>;
