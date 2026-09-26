@@ -66,8 +66,9 @@ export function reflectionIndex(day: string) {
   return [...day].reduce((sum, character) => (sum * 31 + character.charCodeAt(0)) >>> 0, 0);
 }
 export function dailyIntelligence(day: string): DailyIntelligence {
-  const reflection = REFLECTIONS[reflectionIndex(day) % REFLECTIONS.length];
-  return { quote: reflection[0], practice: reflection[1], scripture: reflection[2] };
+  const reflection = REFLECTIONS[reflectionIndex(day) % REFLECTIONS.length] ?? REFLECTIONS[0] ?? ["", "", ""];
+  const [quote = "", practice = "", scripture = ""] = reflection;
+  return { quote, practice, scripture };
 }
 export const DOWNTIME = [
   { minutes: 5, title: "Reset your space", detail: "Make your bed or clear your desk. Leave the phone outside the room." },
