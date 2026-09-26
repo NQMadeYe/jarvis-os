@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, BookOpen, BriefcaseBusiness, Check, ChevronRight, Compass, Cross, Dumbbell, Focus, HeartHandshake, Plus, Shield, Sparkles, Target, Timer, WalletCards, X } from "lucide-react";
-import { DAY_BLOCKS, dailyIntelligence, emptyLifePlan, LIFE_PLAN_KEY, LifeDay, LifePlan, loadLifePlan, localDay, newLifeDay } from "../lib/life-plan";
+import { DAY_BLOCKS, emptyLifePlan, LIFE_PLAN_KEY, LifeDay, LifePlan, loadLifePlan, localDay, newLifeDay, REFLECTIONS, reflectionIndex } from "../lib/life-plan";
 import { Mission, MissionIdea, MISSIONS, Pillar, PILLARS, PLACES, LocalPlace, recentDays, weeklyPillarDays } from "../lib/life-missions";
 import styles from "./life-cockpit.module.css";
 
@@ -39,6 +39,7 @@ export default function LifeCockpit() {
   const [focusLength,setFocusLength]=useState(25);
   const [expanded,setExpanded]=useState<string|null>(null);
   const [removed,setRemoved]=useState<Mission|null>(null);
+  const [intelligence,setIntelligence]=useState<{quote:string;practice:string;scripture:string}|null>(null);
   const focusRef=useRef<HTMLElement>(null);
   const topRef=useRef<HTMLDivElement>(null);
 
@@ -47,7 +48,6 @@ export default function LifeCockpit() {
   function changeDay(change:(day:LifeDay)=>LifeDay){const key=localDay();return update(current=>({...current,days:{...current.days,[key]:change(current.days[key]||newLifeDay())}}));}
   const date=now?localDay(new Date(now)):'';
   const day=plan.days[date]||newLifeDay();
-  const intelligence=day.intelligence||dailyIntelligence(date||localDay());
   const todayMissions=plan.missions.filter(m=>m.date===date).sort((a,b)=>Number(a.done)-Number(b.done)||a.time.localeCompare(b.time));
   const upcoming=plan.missions.filter(m=>m.date>date).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
   const overdue=plan.missions.filter(m=>m.date<date&&!m.done);
@@ -62,14 +62,32 @@ export default function LifeCockpit() {
   const suggested=MISSIONS.filter(m=>m.pillar===pillar&&m.minutes<=available);
 
   useEffect(()=>{
-    if(!ready||!date||day.intelligence)return;
-    const locked=dailyIntelligence(date);
-    update(current=>{
-      const currentDay=current.days[date]||newLifeDay();
-      if(currentDay.intelligence)return current;
-      return {...current,days:{...current.days,[date]:{...currentDay,intelligence:locked}}};
-    });
-  },[ready,date,day.intelligence?.quote,day.intelligence?.practice,day.intelligence?.scripture]);
+    if(!ready||!date)return;
+    const KEY='jarvis-life-daily-intelligence-v1';
+    const load=()=>{
+      try{
+        const raw=window.localStorage.getItem(KEY);
+        const history=raw?JSON.parse(raw) as Record<string,{quote?:string;practice?:string;scripture?:string}>:{};
+        const saved=history[date];
+        if(saved&&typeof saved.quote==='string'&&typeof saved.practice==='string'&&typeof saved.scripture==='string'){
+          setIntelligence({quote:saved.quote,practice:saved.practice,scripture:saved.scripture});
+          return;
+        }
+        const reflection=REFLECTIONS[reflectionIndex(date)%REFLECTIONS.length]??REFLECTIONS[0]??['','',''];
+        const locked={quote:reflection[0]??'',practice:reflection[1]??'',scripture:reflection[2]??''};
+        const next={...history,[date]:locked};
+        window.localStorage.setItem(KEY,JSON.stringify(next));
+        setIntelligence(locked);
+        window.dispatchEvent(new Event('jarvis-life-intelligence-updated'));
+      }catch{
+        const reflection=REFLECTIONS[reflectionIndex(date)%REFLECTIONS.length]??REFLECTIONS[0]??['','',''];
+        setIntelligence({quote:reflection[0]??'',practice:reflection[1]??'',scripture:reflection[2]??''});
+      }
+    };
+    load();
+    window.addEventListener('jarvis-life-intelligence-updated',load);
+    return()=>window.removeEventListener('jarvis-life-intelligence-updated',load);
+  },[ready,date]);
 
   function addMission(idea:MissionIdea,dateToUse=localDay(),time='',sourceId=idea.id){let duplicate=false;const mission:Mission={id:crypto.randomUUID(),sourceId,pillar:idea.pillar,title:idea.title,detail:idea.detail,minutes:idea.minutes,date:dateToUse,time,done:false,evidence:''};const ok=update(current=>{if(current.missions.some(m=>m.sourceId===sourceId&&m.date===dateToUse)){duplicate=true;return current;}return {...current,missions:[...current.missions,mission]};});if(ok)setNotice(duplicate?'Already on that day’s plan.':`Added: ${idea.title} · ${dateToUse}${time?' at '+time:''}`);return ok;}
   function patchMission(id:string,patch:Partial<Mission>){return update(current=>({...current,missions:current.missions.map(m=>m.id===id?{...m,...patch}:m)}));}
@@ -87,7 +105,7 @@ export default function LifeCockpit() {
     {!ready?<p>Loading your saved plan…</p>:<>
       {reset&&<section className={styles.resetPanel}><div className={styles.panelHead}><h3>BREAK THE LOOP</h3><button aria-label="Close reset" onClick={()=>setReset(false)}><X size={14}/></button></div><label>What pulled you off course?<select value={trigger} onChange={e=>setTrigger(e.target.value)}>{['Scrolling','Netflix','Vaping','Porn or sexual urge','Boredom','Avoiding a task'].map(t=><option key={t}>{t}</option>)}</select></label><div className={styles.resetSteps}><p><b>01 / MOVE</b> Stand up and change rooms.</p><p><b>02 / REMOVE</b> {trigger==='Vaping'?'Put the disposable out of reach.':'Close the content and put the phone away.'}</p><p><b>03 / RECOMMIT</b> Pray, name what you need, and choose one five-minute action.</p></div><button disabled={!!plan.session} onClick={()=>startFocus('Clear my space and choose my next action',5)}>START 5-MINUTE RESET <ChevronRight size={14}/></button><small>Your trigger choice is not saved. Urges do not erase progress; choose the next action.</small></section>}
       {view==='TODAY'&&<>
-        <div className={styles.todayGrid}><section className={styles.panel}><div className={styles.panelHead}><h3>DAILY ORDERS</h3><div><button aria-label="Add daily order" onClick={()=>{changeDay(d=>({...d,priorities:[...d.priorities,{title:'New daily order',done:false}]}));setEditPriorities(true);}}><Plus size={13}/> ADD</button><button onClick={()=>setEditPriorities(!editPriorities)}>{editPriorities?'DONE EDITING':'EDIT'}</button></div></div><div className={styles.priorities}>{day.priorities.map((p,i)=><div className={styles.priority} key={i}><label className={styles.priorityCheck}><input type="checkbox" checked={p.done} aria-label={`Complete priority ${i+1}`} onChange={()=>changeDay(d=>({...d,priorities:d.priorities.map((item,n)=>n===i?{...item,done:!item.done}:item)}))}/><span>{String(i+1).padStart(2,'0')}</span></label>{editPriorities?<input aria-label={`Priority ${i+1}`} maxLength={180} value={p.title} onChange={e=>{const title=e.target.value;changeDay(d=>({...d,priorities:d.priorities.map((item,n)=>n===i?{...item,title}:item)}));}}/>:<p className={p.done?styles.strike:''}>{p.title}</p>}</div>)}</div><div className={styles.next}><span>NEXT MOVE</span><strong>{nextTitle}</strong><button disabled={!!plan.session||(!nextMission&&!nextPriority)} onClick={()=>startFocus(nextTitle,nextMission?.minutes||25)}>ENGAGE FOCUS <ArrowUpRight size={14}/></button></div></section><section className={`${styles.panel} ${styles.brief}`}><div className={styles.panelHead}><h3>DAILY INTELLIGENCE</h3><Cross size={14}/></div><span className={styles.kicker}>QUOTE / JARVIS ORIGINAL</span><blockquote>“{intelligence.quote}”</blockquote><div className={styles.briefRule}/><span className={styles.kicker}>PUT IT INTO PRACTICE</span><p>{intelligence.practice}</p><span className={styles.scripture}>READ / {intelligence.scripture}</span><small>Scripture reference for reading; the quote is an original reflection.</small></section></div>
+        <div className={styles.todayGrid}><section className={styles.panel}><div className={styles.panelHead}><h3>DAILY ORDERS</h3><div><button aria-label="Add daily order" onClick={()=>{changeDay(d=>({...d,priorities:[...d.priorities,{title:'New daily order',done:false}]}));setEditPriorities(true);}}><Plus size={13}/> ADD</button><button onClick={()=>setEditPriorities(!editPriorities)}>{editPriorities?'DONE EDITING':'EDIT'}</button></div></div><div className={styles.priorities}>{day.priorities.map((p,i)=><div className={styles.priority} key={i}><label className={styles.priorityCheck}><input type="checkbox" checked={p.done} aria-label={`Complete priority ${i+1}`} onChange={()=>changeDay(d=>({...d,priorities:d.priorities.map((item,n)=>n===i?{...item,done:!item.done}:item)}))}/><span>{String(i+1).padStart(2,'0')}</span></label>{editPriorities?<input aria-label={`Priority ${i+1}`} maxLength={180} value={p.title} onChange={e=>{const title=e.target.value;changeDay(d=>({...d,priorities:d.priorities.map((item,n)=>n===i?{...item,title}:item)}));}}/>:<p className={p.done?styles.strike:''}>{p.title}</p>}</div>)}</div><div className={styles.next}><span>NEXT MOVE</span><strong>{nextTitle}</strong><button disabled={!!plan.session||(!nextMission&&!nextPriority)} onClick={()=>startFocus(nextTitle,nextMission?.minutes||25)}>ENGAGE FOCUS <ArrowUpRight size={14}/></button></div></section><section className={`${styles.panel} ${styles.brief}`}><div className={styles.panelHead}><h3>DAILY INTELLIGENCE</h3><Cross size={14}/></div><span className={styles.kicker}>QUOTE / JARVIS ORIGINAL</span><blockquote>“{intelligence?.quote??''}”</blockquote><div className={styles.briefRule}/><span className={styles.kicker}>PUT IT INTO PRACTICE</span><p>{intelligence?.practice??''}</p><span className={styles.scripture}>READ / {intelligence?.scripture??''}</span><small>Scripture reference for reading; the quote is an original reflection.</small></section></div>
         <section className={styles.panel}><div className={styles.panelHead}><h3>TODAY’S MISSION QUEUE</h3><span>{todayMissions.filter(m=>m.done).length} / {todayMissions.length} COMPLETE</span></div>{todayMissions.length?todayMissions.map(missionRow):<div className={styles.empty}><Target size={22}/><p>Your next chapter needs a place on the calendar.</p><span>Add a mission from Build or plan a local experience.</span></div>}<div className={styles.inlineActions}><button onClick={()=>openView('BUILD')}><Plus size={14}/> ADD A BUILD MISSION</button><button onClick={()=>openView('EXPLORE')}><Compass size={14}/> PLAN AN EXPERIENCE</button></div></section>
         {overdue.length>0&&<details className={styles.panel}><summary>{overdue.length} UNFINISHED FROM EARLIER DAYS</summary><p>Choose deliberately: reschedule, finish, or remove. Nothing is marked complete automatically.</p>{overdue.map(m=><div className={styles.agendaRow} key={m.id}><div><span>{m.date}</span><strong>{m.title}</strong></div><button onClick={()=>patchMission(m.id,{date:localDay()})}>MOVE TO TODAY</button></div>)}</details>}
         <section className={styles.panel}><div className={styles.panelHead}><h3>LEAVE ROOM TO LIVE</h3><Compass size={14}/></div>{upcoming.length?upcoming.slice(0,4).map(m=><div className={styles.agendaRow} key={m.id}><div><span>{m.date} {m.time&&`/ ${m.time}`}</span><strong>{m.title}</strong></div><button onClick={()=>{setView('REVIEW');setExpanded(m.id);}}>VIEW</button></div>):<p>Plan one new place or shared experience this week. Give it a day, a budget, and enough time to enjoy it.</p>}<button onClick={()=>openView('EXPLORE')}>EXPLORE MIAMI <ArrowUpRight size={14}/></button></section>
