@@ -241,7 +241,7 @@ export default function WorkV2() {
             </div>
           </Panel>
           {domain === "TRADING" ? (
-            <Panel title="TRADING RULES" corner={`${tradingRuleChecks.filter(Boolean).length}/5`}>
+            <Panel title="RULES" corner={`${tradingRuleChecks.filter(Boolean).length}/5`}>
               <div className="trading-rules-checklist">
                 {TRADING_RULES.map((rule, index) => (
                   <label className={tradingRuleChecks[index] ? "is-checked" : ""} key={rule}>
