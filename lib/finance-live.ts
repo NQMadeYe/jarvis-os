@@ -51,9 +51,9 @@ export function buildFinanceState(input: {
     accounts,
     liabilities,
     metrics: { personalNetWorth, providerNetWorth, liquidity, investmentValue, personalDebt, authorizedUserBalance },
-    currentStage,
-    nextStage,
-    goals: buildGoals({ personalDebt, liquidity, personalNetWorth }),
+    currentStage: accounts.length ? currentStage : "SETUP",
+    nextStage: accounts.length ? nextStage : "CONNECT",
+    goals: accounts.length ? buildGoals({ personalDebt, liquidity, personalNetWorth }) : [],
     note: input.note?.trim().slice(0, 500) || (input.mode === "DIRECT"
       ? "Direct finance state is feeding Jarvis automatically."
       : "Connected finance data has been synchronized into Jarvis, but the website is not yet independently refreshing the provider connection."),
