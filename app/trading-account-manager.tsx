@@ -86,6 +86,7 @@ const SELECTED_KEY = "jarvis-trading-selected-account-v1";
 const JOURNAL_KEY = "jarvis-trading-journal-v1";
 const IMAGE_DB = "jarvis-trading-journal-images-v1";
 const IMAGE_STORE = "images";
+const FUNDED_MIN_QUALIFYING_PNL = 150;
 
 const defaultAccount: TradingAccount = {
   id: "primary",
