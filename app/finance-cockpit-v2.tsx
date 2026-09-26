@@ -73,6 +73,22 @@ export default function FinanceCockpitV2() {
     catch { setSaved("Storage unavailable. Your draft remains open but is not saved."); }
   }
 
+  if (accounts.length === 0) {
+    return <section className={s.finance} aria-label="Finance capital control">
+      <header className={s.header}>
+        <div><span className={s.eyebrow}>FINANCE</span><h2>CAPITAL CONTROL</h2><p>Donye's finance workspace is ready for his own data.</p></div>
+        <div className={s.sync}><span><i />NOT CONNECTED</span><small>No finance data yet</small></div>
+      </header>
+      <section className={s.panel} style={{ minHeight: 360, display: "grid", placeItems: "center", textAlign: "center" }}>
+        <div style={{ maxWidth: 520 }}>
+          <Wallet size={28} />
+          <h3 style={{ marginTop: 14, fontSize: 15 }}>NO FINANCE DATA CONNECTED</h3>
+          <p style={{ marginTop: 8 }}>Accounts, balances, debts, goals, and transactions will stay blank until Donye connects his own financial sources.</p>
+        </div>
+      </section>
+    </section>;
+  }
+
   return <section className={s.finance} aria-label="Finance capital control">
     <header className={s.header}>
       <div><span className={s.eyebrow}>FINANCE</span><h2>CAPITAL CONTROL</h2><p>Protect the base. Clear the debt. Build ownership.</p></div>
