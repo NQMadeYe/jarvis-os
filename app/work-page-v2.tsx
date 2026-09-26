@@ -5,6 +5,7 @@ import {
   Bot,
   BrainCircuit,
   BriefcaseBusiness,
+  Check,
   LifeBuoy,
   Mic,
   Radar,
@@ -65,6 +66,20 @@ const sectors = [
   { id: "LIFE" as const, icon: Target, title: "LIFE", signal: "ALIGN" },
 ];
 
+const TRADING_RULES = [
+  "Find the trend",
+  "Look on the 1hr for support and resistance",
+  "Wait for someone to loss (buyers or sellers)",
+  "Mark your zone on the 5 min",
+  "Enter when price taps zone and target a 1:2 or 1:3",
+] as const;
+
+function tradingRulesStorageKey() {
+  const now = new Date();
+  const day = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  return `jarvis-trading-rules-v1:${day}`;
+}
+
 export default function WorkV2() {
   const [time, setTime] = useState("--:--:--");
   const [date, setDate] = useState("--- -- ----");
@@ -79,7 +94,27 @@ export default function WorkV2() {
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [activeProvider, setActiveProvider] = useState("AUTO");
   const [activeModel, setActiveModel] = useState("JARVIS CORE");
+  const [tradingRuleChecks, setTradingRuleChecks] = useState<boolean[]>(TRADING_RULES.map(() => false));
   const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(tradingRulesStorageKey());
+      if (!stored) return;
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length === TRADING_RULES.length) {
+        setTradingRuleChecks(parsed.map(Boolean));
+      }
+    } catch {}
+  }, []);
+
+  function toggleTradingRule(index: number) {
+    setTradingRuleChecks((current) => {
+      const next = current.map((checked, ruleIndex) => ruleIndex === index ? !checked : checked);
+      try { window.localStorage.setItem(tradingRulesStorageKey(), JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }
 
   function hydrateFromState() {
     const saved = loadJarvisState();
@@ -205,6 +240,23 @@ export default function WorkV2() {
               )) : <><Event text="Jarvis core online" time="NOW" /><Event text="Autonomous workforce ready" time="AI" /><Event text="Finance accounts connected" time="FIN" /></>}
             </div>
           </Panel>
+          {domain === "TRADING" ? (
+            <Panel title="TRADING RULES" corner={`${tradingRuleChecks.filter(Boolean).length}/5`}>
+              <div className="trading-rules-checklist">
+                {TRADING_RULES.map((rule, index) => (
+                  <label className={tradingRuleChecks[index] ? "is-checked" : ""} key={rule}>
+                    <input
+                      type="checkbox"
+                      checked={tradingRuleChecks[index]}
+                      onChange={() => toggleTradingRule(index)}
+                    />
+                    <span className="trading-rule-check">{tradingRuleChecks[index] ? <Check size={11} /> : null}</span>
+                    <p><b>{String(index + 1).padStart(2, "0")}</b>{rule}</p>
+                  </label>
+                ))}
+              </div>
+            </Panel>
+          ) : null}
         </aside>
 
         <section className={`center-core ${domain === "FINANCE" ? "finance-mode" : ""} ${domain === "TRADING" ? "trading-mode" : ""} ${domain === "LIFE" ? lifeStyles.center : ""}`}>
