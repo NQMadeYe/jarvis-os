@@ -14,6 +14,7 @@ import {
   NotebookPen,
   Plus,
   RotateCcw,
+  Star,
   Trash2,
   Trophy,
   X,
@@ -44,6 +45,10 @@ type TradingAccount = {
 type JournalEntry = {
   pnl: number | null;
   notes: string;
+  feeling?: string;
+  tradeManagement?: string;
+  errors?: string;
+  rating?: number;
   hasImage: boolean;
   imageCount?: number;
 };
@@ -363,7 +368,7 @@ async function loadCloudSnapshot(supabase: SupabaseClient, workspaceId: string):
       .eq("workspace_id", workspaceId),
     supabase
       .from("trading_days")
-      .select("id,account_id,cycle_id,trade_date,realized_pnl,notes,screenshot_count,client_entry_key")
+      .select("id,account_id,cycle_id,trade_date,realized_pnl,notes,screenshot_count,client_entry_key,metadata")
       .eq("workspace_id", workspaceId)
       .order("trade_date", { ascending: true }),
     supabase
@@ -410,9 +415,16 @@ async function loadCloudSnapshot(supabase: SupabaseClient, workspaceId: string):
     const accountId = accountClientId.get(String(row.account_id));
     const key = row.client_entry_key || (phase && accountId ? `${phase}:${row.trade_date}` : null);
     if (!key) continue;
+    const metadata = row.metadata && typeof row.metadata === "object"
+      ? row.metadata as Record<string, unknown>
+      : {};
     journal[String(key)] = {
       pnl: row.realized_pnl == null ? null : asNumber(row.realized_pnl),
       notes: String(row.notes ?? ""),
+      feeling: typeof metadata.feeling === "string" ? metadata.feeling : "",
+      tradeManagement: typeof metadata.tradeManagement === "string" ? metadata.tradeManagement : "",
+      errors: typeof metadata.errors === "string" ? metadata.errors : "",
+      rating: Math.max(0, Math.min(5, Math.round(asNumber(metadata.rating)))),
       hasImage: asNumber(row.screenshot_count) > 0,
       imageCount: Math.max(0, Math.round(asNumber(row.screenshot_count))),
     };
@@ -534,7 +546,13 @@ async function pushCloudSnapshot(
       realized_pnl: entry.pnl,
       notes: entry.notes,
       screenshot_count: Math.max(0, Math.round(entry.imageCount ?? (entry.hasImage ? 1 : 0))),
-      metadata: { syncedFrom: "trading-account-manager" },
+      metadata: {
+        syncedFrom: "trading-account-manager",
+        feeling: entry.feeling ?? "",
+        tradeManagement: entry.tradeManagement ?? "",
+        errors: entry.errors ?? "",
+        rating: Math.max(0, Math.min(5, Math.round(entry.rating ?? 0))),
+      },
     }];
   });
 
@@ -685,7 +703,10 @@ export default function TradingAccountManager({
   const [monthCursor, setMonthCursor] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState(() => dateKey(new Date()));
   const [draftPnl, setDraftPnl] = useState("");
-  const [draftNotes, setDraftNotes] = useState("");
+  const [draftFeeling, setDraftFeeling] = useState("");
+  const [draftTradeManagement, setDraftTradeManagement] = useState("");
+  const [draftErrors, setDraftErrors] = useState("");
+  const [draftRating, setDraftRating] = useState(0);
   const [imageItems, setImageItems] = useState<TradeImageItem[]>([]);
   const [activeImage, setActiveImage] = useState<TradeImageItem | null>(null);
   const [imageRevision, setImageRevision] = useState(0);
@@ -884,7 +905,10 @@ export default function TradingAccountManager({
     if (!account) return;
     const current = journal[entryKey(account, selectedDay)];
     setDraftPnl(current?.pnl === null || current?.pnl === undefined ? "" : String(current.pnl));
-    setDraftNotes(current?.notes ?? "");
+    setDraftFeeling(current?.feeling ?? "");
+    setDraftTradeManagement(current?.tradeManagement ?? "");
+    setDraftErrors(current?.errors ?? "");
+    setDraftRating(Math.max(0, Math.min(5, current?.rating ?? 0)));
   }, [account, journal, selectedDay]);
 
   useEffect(() => {
@@ -1033,12 +1057,22 @@ export default function TradingAccountManager({
     const previous = journal[key] ?? { pnl: null, notes: "", hasImage: false };
     const nextPnl = draftPnl.trim() === "" ? null : parseNumber(draftPnl, previous.pnl ?? 0);
     const delta = (nextPnl ?? 0) - (previous.pnl ?? 0);
+    const notes = [
+      draftFeeling.trim() ? `FEELING: ${draftFeeling.trim()}` : "",
+      draftTradeManagement.trim() ? `TRADE MANAGEMENT: ${draftTradeManagement.trim()}` : "",
+      draftErrors.trim() ? `ERRORS: ${draftErrors.trim()}` : "",
+      draftRating > 0 ? `SESSION RATING: ${draftRating}/5` : "",
+    ].filter(Boolean).join("\n");
 
     setJournal((current) => ({
       ...current,
       [key]: {
         pnl: nextPnl,
-        notes: draftNotes,
+        notes,
+        feeling: draftFeeling,
+        tradeManagement: draftTradeManagement,
+        errors: draftErrors,
+        rating: draftRating,
         hasImage: previous.hasImage,
         imageCount: previous.imageCount ?? (previous.hasImage ? 1 : 0),
       },
@@ -1481,10 +1515,10 @@ export default function TradingAccountManager({
                 >
                   <span className="day-number">{day.getDate()}</span>
                   {pnl !== null ? <strong>{pnlMoney(pnl)}</strong> : <i>—</i>}
-                  {(entry?.notes.trim() || entry?.hasImage) ? (
+                  {(entry?.notes.trim() || (entry?.rating ?? 0) > 0 || entry?.hasImage) ? (
                     <small>
-                      {entry?.notes.trim() ? "NOTE" : ""}
-                      {entry?.notes.trim() && entry?.hasImage ? " · " : ""}
+                      {(entry?.notes.trim() || (entry?.rating ?? 0) > 0) ? "REVIEW" : ""}
+                      {(entry?.notes.trim() || (entry?.rating ?? 0) > 0) && entry?.hasImage ? " · " : ""}
                       {entry?.hasImage ? `IMG ×${Math.max(1, entry.imageCount ?? 1)}` : ""}
                     </small>
                   ) : null}
@@ -1546,14 +1580,51 @@ export default function TradingAccountManager({
                 onChange={(event) => setDraftPnl(event.target.value)}
               />
             </label>
-            <label className="journal-notes">
-              <span>NOTES</span>
-              <textarea
-                placeholder="Setup, liquidity sweep, entry reason, execution mistake, lesson..."
-                value={draftNotes}
-                onChange={(event) => setDraftNotes(event.target.value)}
-              />
-            </label>
+            <div className="journal-review">
+              <label className="journal-question">
+                <span>1. HOW DID YOU FEEL TRADING TODAY?</span>
+                <textarea
+                  placeholder="Calm, patient, rushed, confident, distracted..."
+                  value={draftFeeling}
+                  onChange={(event) => setDraftFeeling(event.target.value)}
+                />
+              </label>
+              <label className="journal-question">
+                <span>2. TRADE MANAGEMENT?</span>
+                <textarea
+                  placeholder="How did you manage entries, stops, targets, and exits?"
+                  value={draftTradeManagement}
+                  onChange={(event) => setDraftTradeManagement(event.target.value)}
+                />
+              </label>
+              <label className="journal-question">
+                <span>3. ANY ERRORS?</span>
+                <textarea
+                  placeholder="What did you miss, force, break, or need to improve?"
+                  value={draftErrors}
+                  onChange={(event) => setDraftErrors(event.target.value)}
+                />
+              </label>
+              <div className="journal-question journal-rating-question">
+                <span>4. RATE OVERALL TRADING SESSION 1–5</span>
+                <div className="journal-stars" role="radiogroup" aria-label="Rate overall trading session from 1 to 5 stars">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      className={draftRating >= star ? "is-filled" : ""}
+                      role="radio"
+                      aria-checked={draftRating === star}
+                      aria-label={`${star} star${star === 1 ? "" : "s"}`}
+                      onClick={() => setDraftRating(star)}
+                    >
+                      <Star size={23} fill={draftRating >= star ? "currentColor" : "none"} />
+                    </button>
+                  ))}
+                  <small>{draftRating ? `${draftRating}/5` : "SELECT RATING"}</small>
+                </div>
+              </div>
+            </div>
 
             <div className="journal-image-zone">
               {imageItems.length > 0 ? (
