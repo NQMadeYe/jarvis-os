@@ -97,6 +97,7 @@ const HABIT_KEY = "jarvis-habit-history-v1";
 const TRADING_ACCOUNTS_KEY = "jarvis-trading-accounts-v1";
 const TRADING_SELECTED_KEY = "jarvis-trading-selected-account-v1";
 const TRADING_JOURNAL_KEY = "jarvis-trading-journal-v1";
+const FUNDED_MIN_QUALIFYING_PNL = 150;
 
 const LIFE_HABITS: Array<{ id: HabitId; name: string }> = [
   { id: "life.bible", name: "READ BIBLE" },
@@ -133,7 +134,9 @@ function loadTradingGoalSnapshot(): TradingGoalSnapshot | null {
       .filter(([, entry]) => entry.pnl != null || Boolean(entry.notes?.trim()) || entry.hasImage === true)
       .map(([key]) => key.slice(-10))
       .filter((day) => /^\d{4}-\d{2}-\d{2}$/.test(day));
-    const tradingDays = trackedDays.length;
+    const tradingDays = account.stage === "FUNDED"
+      ? entries.filter(([, entry]) => typeof entry.pnl === "number" && entry.pnl >= FUNDED_MIN_QUALIFYING_PNL).length
+      : trackedDays.length;
     const totalPnl = entries.reduce((sum, [, entry]) => sum + (typeof entry.pnl === "number" ? entry.pnl : 0), 0);
     const targetBalance = account.stage === "EVAL"
       ? account.startBalance + Math.max(0, account.profitTarget)
@@ -411,7 +414,6 @@ export default function DomainGoals({ domain, events }: { domain: Domain; events
         ? (recentTrackedDays.filter((day) => reviewedSet.has(day)).length / recentTrackedDays.length) * 100
         : null;
       const payoutCount = Math.max(0, tradingPayouts?.lifetimeCount ?? 0);
-      const nextPayoutNumber = tradingPayouts?.nextPayoutNumber ?? (payoutCount + 1);
       const firstPayoutProgress = payoutCount >= 1 ? 100 : 0;
       const latestPayout = tradingPayouts?.latest;
       const latestPayoutDetail = latestPayout
@@ -430,7 +432,7 @@ export default function DomainGoals({ domain, events }: { domain: Domain; events
           : {
               name: "CURRENT FUNDED ACCOUNT",
               status: tradingAccount.remaining <= 0 && tradingAccount.dayProgress >= 100 ? "DONE" : "ACTIVE",
-              detail: `${tradingAccount.account.label} · ${dollars(tradingAccount.remaining)} buffer left · ${tradingAccount.tradingDays}/${tradingAccount.account.requiredTradingDays} qualifying days.`,
+              detail: `${tradingAccount.account.label} · ${dollars(tradingAccount.remaining)} buffer left · ${tradingAccount.tradingDays}/${tradingAccount.account.requiredTradingDays} qualifying days at $150+ each.`,
               progress: Math.min(tradingAccount.progress, tradingAccount.dayProgress || tradingAccount.progress),
               active: tradingAccount.remaining > 0 || tradingAccount.dayProgress < 100,
             }
