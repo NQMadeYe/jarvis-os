@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { FinanceRuntimeState } from "../lib/jarvis-runtime";
+import { loadLifePlan, type LifePlan, localDay as lifeLocalDay } from "../lib/life-plan";
+import { PILLARS, weeklyPillarDays } from "../lib/life-missions";
 
 type Domain = "TRADING" | "FINANCE" | "SENTRYOPS" | "LIFE";
 type GoalEvent = { type: string; occurredAt?: string };
@@ -276,6 +278,7 @@ export default function DomainGoals({ domain, events }: { domain: Domain; events
   const [tradingRuntime, setTradingRuntime] = useState<TradingGoalRuntime | null>(null);
   const [tradingPayouts, setTradingPayouts] = useState<TradingGoalPayoutSummary | null>(null);
   const [tradingAccount, setTradingAccount] = useState<TradingGoalSnapshot | null>(null);
+  const [lifePlan, setLifePlan] = useState<LifePlan | null>(null);
 
   useEffect(() => {
     const loaded = loadHabitStore();
@@ -288,6 +291,25 @@ export default function DomainGoals({ domain, events }: { domain: Domain; events
     window.addEventListener("focus", refresh);
     return () => { window.clearInterval(timer); window.removeEventListener("storage", sync); window.removeEventListener("focus", refresh); };
   }, []);
+
+  useEffect(() => {
+    if (domain !== "LIFE") return;
+    const refreshLife = () => {
+      try { setLifePlan(loadLifePlan()); } catch { setLifePlan(null); }
+    };
+    refreshLife();
+    const syncLife = (event: StorageEvent) => {
+      if (!event.key || event.key === "jarvis-life-command-v2" || event.key === "jarvis-life-plan-v1") refreshLife();
+    };
+    window.addEventListener("storage", syncLife);
+    window.addEventListener("focus", refreshLife);
+    window.addEventListener("jarvis-life-updated", refreshLife as EventListener);
+    return () => {
+      window.removeEventListener("storage", syncLife);
+      window.removeEventListener("focus", refreshLife);
+      window.removeEventListener("jarvis-life-updated", refreshLife as EventListener);
+    };
+  }, [domain]);
 
   useEffect(() => {
     if (domain !== "FINANCE") return;
@@ -388,9 +410,9 @@ export default function DomainGoals({ domain, events }: { domain: Domain; events
       const reviewRate = recentTrackedDays.length
         ? (recentTrackedDays.filter((day) => reviewedSet.has(day)).length / recentTrackedDays.length) * 100
         : null;
-      const payoutCount = Math.max(0, tradingPayouts?.lifetimeCount ?? (hasEvent(events, "trading.payout_received") ? 1 : 0));
+      const payoutCount = Math.max(0, tradingPayouts?.lifetimeCount ?? 0);
       const nextPayoutNumber = tradingPayouts?.nextPayoutNumber ?? (payoutCount + 1);
-      const fifthPayoutProgress = Math.min(100, (payoutCount / 5) * 100);
+      const firstPayoutProgress = payoutCount >= 1 ? 100 : 0;
       const latestPayout = tradingPayouts?.latest;
       const latestPayoutDetail = latestPayout
         ? `Last payout ${dollars(latestPayout.payoutAmount ?? latestPayout.traderNetAmount)}${latestPayout.approvedAt ? ` · ${new Date(latestPayout.approvedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : ""}.`
@@ -428,11 +450,11 @@ export default function DomainGoals({ domain, events }: { domain: Domain; events
       return [
         accountGoal,
         {
-          name: "5TH PAYOUT",
-          status: payoutCount >= 5 ? "DONE" : "ACTIVE",
-          detail: `${payoutCount}/5 payouts completed · ${latestPayoutDetail} ${payoutCount < 5 ? `Payout #${nextPayoutNumber} is the target.` : "Milestone complete."}`,
-          progress: fifthPayoutProgress,
-          active: payoutCount < 5,
+          name: "FIRST PAYOUT",
+          status: payoutCount >= 1 ? "DONE" : "ACTIVE",
+          detail: `${payoutCount} payout${payoutCount === 1 ? "" : "s"} recorded · ${latestPayoutDetail} ${payoutCount < 1 ? "Payout #1 is the target." : "First payout milestone complete."}`,
+          progress: firstPayoutProgress,
+          active: payoutCount < 1,
         },
         {
           name: "LIVE EXECUTION",
@@ -457,12 +479,12 @@ export default function DomainGoals({ domain, events }: { domain: Domain; events
         },
         {
           name: "SCALE FUNDED CAPITAL",
-          status: payoutCount >= 5 ? "NEXT" : "LOCKED",
-          detail: payoutCount >= 5
-            ? "Five payouts are proven. Scale only while account buffer, drawdown and execution discipline remain healthy."
-            : "Unlock after payout #5 so scale follows repeatable payout evidence instead of account size alone.",
-          progress: null,
-          active: payoutCount >= 5,
+          status: payoutCount >= 1 ? "NEXT" : "LOCKED",
+          detail: payoutCount >= 1
+            ? "First payout is proven. Scale only while the funded buffer, drawdown and execution discipline remain healthy."
+            : "0 payouts recorded · unlock after payout #1 is actually received.",
+          progress: payoutCount >= 1 ? 100 : 0,
+          active: payoutCount >= 1,
         },
       ];
     }
@@ -479,24 +501,18 @@ export default function DomainGoals({ domain, events }: { domain: Domain; events
     }
 
     if (domain === "LIFE") {
-      const habitGoals = LIFE_HABITS.map<GoalItem>((habit) => {
-        const done = habits.days[dateKey()]?.[habit.id] === true;
-        const rate = habitRate(habits, habit.id, 7);
+      const end = lifeLocalDay();
+      return PILLARS.map<GoalItem>((pillar) => {
+        const count = lifePlan ? weeklyPillarDays(lifePlan.missions, end, pillar.id) : 0;
+        const progress = Math.min(100, (count / pillar.target) * 100);
         return {
-          name: habit.name,
-          status: done ? "DONE" : "ACTIVE",
-          detail: `${rate == null ? "No history yet" : `${Math.round(rate)}% last 7D`} · streak ${habitStreak(habits, habit.id)}.`,
-          progress: done ? 100 : 0,
-          active: !done,
-          habitId: habit.id,
+          name: pillar.label,
+          status: progress >= 100 ? "DONE" : "ACTIVE",
+          detail: `${count} / ${pillar.target} days this week · ${pillar.intent}`,
+          progress,
+          active: progress < 100,
         };
       });
-      return [
-        ...habitGoals,
-        { name: "CONSISTENCY CHECK", status: summary.verdict, detail: summary.life7DayCompletion == null ? "Jarvis is building your baseline." : `${summary.life7DayCompletion}% average completion across your daily Life check-offs.`, progress: summary.life7DayCompletion, active: summary.verdict !== "CONSISTENT" },
-        { name: "MOVE OUT READINESS", status: "LINKED TO FINANCE", detail: "Moves only when Finance gates are actually satisfied.", progress: null },
-        { name: "LIFESTYLE UPGRADE", status: "LINKED TO FINANCE", detail: "Lifestyle expands after cash flow, debt, credit and reserves support it.", progress: null },
-      ];
     }
 
     const metrics = finance?.metrics;
@@ -515,7 +531,7 @@ export default function DomainGoals({ domain, events }: { domain: Domain; events
       { name: "GR SUPRA", status: "SETUP", detail: "Unlocks only when purchase + insurance + post-purchase cash gates are safe.", progress: null },
       { name: "$100M CASH", status: "ULTIMATE", detail: `$${metrics.liquidity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} current connected cash.`, progress: cash100M },
     ];
-  }, [domain, events, finance, habits, summary, todayKey, tradingAccount, tradingPayouts, tradingRuntime]);
+  }, [domain, events, finance, habits, summary, todayKey, tradingAccount, tradingPayouts, tradingRuntime, lifePlan]);
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("jarvis-goal-readiness", {
