@@ -21,6 +21,7 @@ const RUNTIME_KEYS = {
   finance: "runtime.finance.v1",
   workforce: "runtime.workforce.v1",
   trading: "runtime.trading.v1",
+  payouts: "runtime.trading-payouts.v1",
   pulse: "runtime.pulse.v1",
 } as const;
 
@@ -271,6 +272,7 @@ export default function JarvisCloudBridge() {
               finance: runtimeByKey.get(RUNTIME_KEYS.finance) ?? null,
               workforce: runtimeByKey.get(RUNTIME_KEYS.workforce) ?? null,
               trading: runtimeByKey.get(RUNTIME_KEYS.trading) ?? null,
+              payouts: runtimeByKey.get(RUNTIME_KEYS.payouts) ?? null,
               pulse: runtimeByKey.get(RUNTIME_KEYS.pulse) ?? null,
               events: (eventRows ?? []).map((row) => ({
                 id: row.id,
@@ -533,8 +535,40 @@ export default function JarvisCloudBridge() {
       }
     }
 
+    async function syncPayoutRuntime() {
+      const workspaceId = workspaceRef.current;
+      if (!readyRef.current || !workspaceId) return;
+      try {
+        const response = await fetch("/api/trading/payouts?range=ALL", { cache: "no-store" });
+        if (!response.ok) return;
+        const body = (await response.json()) as { summary?: { payouts?: unknown[] } };
+        const payouts = Array.isArray(body.summary?.payouts) ? body.summary?.payouts : [];
+
+        const fingerprint = JSON.stringify(payouts);
+        if (runtimeFingerprintsRef.current[RUNTIME_KEYS.payouts] === fingerprint) return;
+        runtimeFingerprintsRef.current[RUNTIME_KEYS.payouts] = fingerprint;
+
+        await supabase
+          .from("jarvis_state_snapshots")
+          .upsert({
+            workspace_id: workspaceId,
+            state_key: RUNTIME_KEYS.payouts,
+            version: 1,
+            payload: runtimePayload(payouts),
+            source: "JARVIS PAYOUT RUNTIME",
+            client_updated_at: new Date().toISOString(),
+          }, { onConflict: "workspace_id,state_key" });
+      } catch {
+        // Retry on the next interval.
+      }
+    }
+
     void syncFinanceRuntime();
-    const timer = window.setInterval(() => void syncFinanceRuntime(), 30000);
+    void syncPayoutRuntime();
+    const timer = window.setInterval(() => {
+      void syncFinanceRuntime();
+      void syncPayoutRuntime();
+    }, 30000);
     return () => window.clearInterval(timer);
   }, []);
 
