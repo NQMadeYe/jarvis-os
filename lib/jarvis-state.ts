@@ -47,7 +47,7 @@ export const defaultState: JarvisClientState = {
     {
       role: "assistant",
       content:
-        "Core online. I’m running in foundation mode. Trading, Finance, Business, and Life are separated. Tell me what you want to accomplish, and I’ll keep the reasoning in the correct lane.",
+        "Core online. I’m running in foundation mode. Trading, Finance, and Life are separated. Tell me what you want to accomplish, and I’ll keep the reasoning in the correct lane.",
       createdAt: new Date().toISOString(),
     },
   ],
