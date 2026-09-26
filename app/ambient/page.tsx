@@ -25,8 +25,8 @@ export default function AmbientPage() {
       <div className="ambient-grid" />
 
       <div className="ambient-identity">
-        <strong>JARVIS COMMAND</strong>
-        <span>OPERATOR // SETUP REQUIRED</span>
+        <strong>NQMADE YE</strong>
+        <span>Donye//Trader & entreprenuer</span>
       </div>
 
       <section className="ambient-center" aria-live="polite">
