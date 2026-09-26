@@ -63,8 +63,7 @@ export default function FinanceCockpitV2() {
   const projection = payoutMath(plan, debtTarget?.current ?? null);
   const milestone = getNextNetWorthMilestone(totals.personalNetWorth);
   const unknownApr = personal.filter(a => liabilities.find(l => l.accountKey === a.key)?.apr == null);
-  const missingNames = [!accounts.some(a => /capital.*one/i.test(a.institution) && /platinum/i.test(a.name)) ? "Capital One Platinum" : null,
-    !accounts.some(a => /roth/i.test(`${a.name} ${a.subtype}`)) ? "Roth IRA" : null].filter(Boolean);
+  const missingNames: string[] = [];
   const bankFreshnessUnknown = banks.some(a => !a.balanceAsOf);
   const receiptDay = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Chicago" }).format(new Date(asOf));
   const updatePlan = (key: keyof PayoutPlan, value: string) => { setPlan(p => ({ ...p, [key]: value })); setSaved(""); };
@@ -77,7 +76,7 @@ export default function FinanceCockpitV2() {
   return <section className={s.finance} aria-label="Finance capital control">
     <header className={s.header}>
       <div><span className={s.eyebrow}>FINANCE</span><h2>CAPITAL CONTROL</h2><p>Protect the base. Clear the debt. Build ownership.</p></div>
-      <div className={s.sync}><span><i />{runtime?.mode === "DIRECT" ? "DIRECT PROVIDER" : "CONNECTED SNAPSHOT"}</span><small>Imported {stamp(asOf)}</small><button onClick={() => void refresh(true)} disabled={loading}><RefreshCw size={11} />{loading ? "LOADING" : "RELOAD DATA"}</button></div>
+      <div className={s.sync}><span><i />{accounts.length === 0 ? "NOT CONNECTED" : runtime?.mode === "DIRECT" ? "DIRECT PROVIDER" : "CONNECTED SNAPSHOT"}</span><small>{accounts.length === 0 ? "No finance data yet" : `Imported ${stamp(asOf)}`}</small><button onClick={() => void refresh(true)} disabled={loading}><RefreshCw size={11} />{loading ? "LOADING" : "RELOAD DATA"}</button></div>
     </header>
     {message && <p className={s.notice} role="status">{message}</p>}
     <div className={s.metrics}>
