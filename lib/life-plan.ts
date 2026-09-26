@@ -20,7 +20,7 @@ export function newLifeDay(): LifeDay {
   return {
     priorities: [
       { title: "Read Scripture, pray, and choose one way to live it today", done: false },
-      { title: "Finish one concrete SentryOps task or coding exercise", done: false },
+      { title: "Finish one concrete trading, business, or coding task", done: false },
       { title: "Complete my workout or planned recovery walk", done: false },
     ],
     blocks: {}, win: "", lesson: "", tomorrow: "", focusMinutes: 0,
@@ -33,7 +33,7 @@ export function loadLifePlan(): LifePlan {
   const parsed = JSON.parse(raw);
   if (![1, 2].includes(parsed.version) || !parsed.days || typeof parsed.days !== "object" || Array.isArray(parsed.days)) throw new Error("Unsupported Life history");
   for (const day of Object.values(parsed.days) as LifeDay[]) {
-    if (!day || !Array.isArray(day.priorities) || day.priorities.length !== 3 || day.priorities.some(p => !p || typeof p.title !== "string" || typeof p.done !== "boolean") || !day.blocks || typeof day.blocks !== "object" || [day.win, day.lesson, day.tomorrow].some(x => typeof x !== "string") || !Number.isFinite(day.focusMinutes)) throw new Error("Invalid Life history");
+    if (!day || !Array.isArray(day.priorities) || day.priorities.length < 1 || day.priorities.length > 20 || day.priorities.some(p => !p || typeof p.title !== "string" || typeof p.done !== "boolean") || !day.blocks || typeof day.blocks !== "object" || [day.win, day.lesson, day.tomorrow].some(x => typeof x !== "string") || !Number.isFinite(day.focusMinutes)) throw new Error("Invalid Life history");
   }
   const s = parsed.session;
   if (s && (typeof s.title !== "string" || !Number.isFinite(s.endsAt) || !Number.isFinite(s.minutes) || typeof s.day !== "string")) throw new Error("Invalid focus session");
@@ -43,7 +43,7 @@ export function loadLifePlan(): LifePlan {
 }
 export const DAY_BLOCKS = [
   { id: "faith", label: "Start with God", time: "15 min", action: "Read a passage, pray, and write one action you will take from it." },
-  { id: "build", label: "Build something useful", time: "50 min", action: "Ship one SentryOps improvement or finish one coding exercise. Name the output before you begin." },
+  { id: "build", label: "Build something useful", time: "50 min", action: "Ship one useful business, trading, or coding improvement. Name the output before you begin." },
   { id: "body", label: "Train & refuel", time: "45–60 min", action: "Follow your workout or recovery plan, eat a proper meal, and get outside." },
   { id: "learn", label: "Learn, then apply", time: "30 min", action: "Read or study, close the material, and write three things you can apply." },
   { id: "responsibility", label: "Handle a responsibility", time: "15 min", action: "Clean your space, prepare a meal, handle an overdue task, or help your mom." },
@@ -72,6 +72,6 @@ export const DOWNTIME = [
   { minutes: 30, title: "Read & retain", detail: "Read your book and write three useful takeaways in your own words." },
   { minutes: 30, title: "Practice a skill", detail: "Complete one coding exercise and explain how your solution works." },
   { minutes: 30, title: "Make time for someone", detail: "Call a friend, spend time with family, or arrange an in-person activity." },
-  { minutes: 60, title: "Move SentryOps forward", detail: "Choose one demo workflow, improve it, and show the finished result." },
+  { minutes: 60, title: "Move your business forward", detail: "Choose one useful business or product workflow, improve it, and show the finished result." },
   { minutes: 60, title: "Get out & recharge", detail: "Take a trail walk, enjoy a hobby, or spend uninterrupted time with someone." },
 ];
