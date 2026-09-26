@@ -1,15 +1,15 @@
 :root {
-  --cyan: #b71f26;
-  --jarvis-red: #b71f26;
-  --jarvis-red-soft: #7f151a;
+  --cyan: #00e5ff;
+  --jarvis-red: #00e5ff;
+  --jarvis-red-soft: #0d7783;
 }
 
 .topbar {
-  border-bottom-color: rgba(183, 31, 38, .22) !important;
+  border-bottom-color: rgba(0, 229, 255, .22) !important;
 }
 
 .brand {
-  text-shadow: 0 0 9px rgba(183, 31, 38, .22) !important;
+  text-shadow: 0 0 9px rgba(0, 229, 255, .22) !important;
 }
 
 .company,
@@ -18,13 +18,13 @@
 }
 
 .company {
-  text-shadow: 0 0 8px rgba(183, 31, 38, .18) !important;
+  text-shadow: 0 0 8px rgba(0, 229, 255, .18) !important;
 }
 
 /* Compact professional HUD hierarchy. */
 .panel-head strong {
   color: var(--jarvis-red) !important;
-  text-shadow: 0 0 5px rgba(183, 31, 38, .14) !important;
+  text-shadow: 0 0 5px rgba(0, 229, 255, .14) !important;
   font-size: .82rem !important;
   font-weight: 700 !important;
   letter-spacing: .07em !important;
@@ -40,43 +40,43 @@
 .event i,
 .finance-sync i {
   background: var(--jarvis-red) !important;
-  box-shadow: 0 0 7px rgba(183, 31, 38, .48) !important;
+  box-shadow: 0 0 7px rgba(0, 229, 255, .48) !important;
 }
 
 .panel-rule {
-  background: linear-gradient(90deg, rgba(183, 31, 38, .28), rgba(255,255,255,.055), transparent) !important;
+  background: linear-gradient(90deg, rgba(0, 229, 255, .28), rgba(255,255,255,.055), transparent) !important;
 }
 
 .radar {
-  border-color: rgba(183, 31, 38, .25) !important;
+  border-color: rgba(0, 229, 255, .25) !important;
 }
 
 .radar.inner {
-  border-color: rgba(183, 31, 38, .42) !important;
+  border-color: rgba(0, 229, 255, .42) !important;
 }
 
 .sweep {
   background: linear-gradient(var(--jarvis-red), transparent) !important;
-  box-shadow: 0 0 8px rgba(183, 31, 38, .40) !important;
+  box-shadow: 0 0 8px rgba(0, 229, 255, .40) !important;
 }
 
 .domain-switcher button.active,
 .domain-matrix button.selected {
-  border-color: rgba(183, 31, 38, .50) !important;
+  border-color: rgba(0, 229, 255, .50) !important;
   background: rgba(37, 5, 7, .40) !important;
-  box-shadow: inset 0 0 18px rgba(183, 31, 38, .025), 0 0 11px rgba(183, 31, 38, .03) !important;
+  box-shadow: inset 0 0 18px rgba(0, 229, 255, .025), 0 0 11px rgba(0, 229, 255, .03) !important;
 }
 
 .finance-titlebar {
-  border-bottom-color: rgba(183, 31, 38, .18) !important;
+  border-bottom-color: rgba(0, 229, 255, .18) !important;
 }
 
 .finance-roadmap {
-  background: linear-gradient(90deg, rgba(183, 31, 38, .04), rgba(8,8,8,.80)) !important;
+  background: linear-gradient(90deg, rgba(0, 229, 255, .04), rgba(8,8,8,.80)) !important;
 }
 
 .footerbar {
-  border-top-color: rgba(183, 31, 38, .15) !important;
+  border-top-color: rgba(0, 229, 255, .15) !important;
 }
 
 /* Desktop-sized information density: clear, restrained, and professional. */
@@ -221,12 +221,12 @@
 }
 
 .account-role-top b {
-  color: #c4262e !important;
-  border-color: rgba(183, 31, 38, .24) !important;
+  color: #22cfe0 !important;
+  border-color: rgba(0, 229, 255, .24) !important;
 }
 
 .net-worth-metric {
-  border-color: rgba(183, 31, 38, .34) !important;
+  border-color: rgba(0, 229, 255, .34) !important;
   background: linear-gradient(180deg, rgba(35, 7, 9, .46), rgba(8, 8, 8, .88)) !important;
 }
 
@@ -268,14 +268,14 @@
 
 .brain-selector button:hover:not(:disabled) {
   color: #e6e6e6;
-  border-color: rgba(183,31,38,.26);
+  border-color: rgba(0,229,255,.26);
 }
 
 .brain-selector button.selected {
   color: #f3f3f3;
-  border-color: rgba(183,31,38,.48);
-  background: rgba(70,10,13,.34);
-  box-shadow: inset 0 0 10px rgba(183,31,38,.035);
+  border-color: rgba(0,229,255,.48);
+  background: rgba(3,44,52,.34);
+  box-shadow: inset 0 0 10px rgba(0,229,255,.035);
 }
 
 .brain-selector button:disabled {
@@ -355,8 +355,8 @@
 .finance-primary-action:hover,
 .finance-decision-list button:hover {
   color: #f2f2f2;
-  border-color: rgba(183,31,38,.46);
-  background: rgba(64,8,11,.32);
+  border-color: rgba(0,229,255,.46);
+  background: rgba(3,42,50,.32);
 }
 
 .finance-metrics-three {
@@ -385,8 +385,8 @@
 }
 
 .finance-stage-row > div.active {
-  background: rgba(90,10,14,.30);
-  box-shadow: inset 0 0 14px rgba(183,31,38,.04);
+  background: rgba(3,52,61,.30);
+  box-shadow: inset 0 0 14px rgba(0,229,255,.04);
 }
 
 .finance-stage-row > div.active span { color: #e2e2e2; }
@@ -415,8 +415,8 @@
 }
 
 .finance-action-card.priority {
-  border-color: rgba(183,31,38,.28);
-  background: linear-gradient(180deg, rgba(52,7,10,.28), rgba(255,255,255,.012));
+  border-color: rgba(0,229,255,.28);
+  background: linear-gradient(180deg, rgba(3,38,46,.28), rgba(255,255,255,.012));
 }
 
 .finance-action-card > span,
@@ -424,7 +424,7 @@
 .finance-debt-card > div span,
 .finance-goal-head span,
 .finance-decision-list article > div span {
-  color: #c32931;
+  color: #22cfe0;
   font-size: .54rem;
   font-weight: 700;
   letter-spacing: .075em;
@@ -591,7 +591,7 @@
 }
 
 .finance-mini-goals span { color: #ddd; }
-.finance-mini-goals b { color: #c32931; }
+.finance-mini-goals b { color: #22cfe0; }
 .finance-mini-goals small { color: #888; }
 
 .finance-mini-proof {
