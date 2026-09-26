@@ -89,15 +89,15 @@ const IMAGE_STORE = "images";
 
 const defaultAccount: TradingAccount = {
   id: "primary",
-  firm: "Lucid Trading",
-  label: "50K EVAL",
+  firm: "UNCONFIGURED",
+  label: "NEW ACCOUNT",
   stage: "EVAL",
-  startBalance: 50000,
-  currentBalance: 50000,
-  lossLimit: 48000,
-  profitTarget: 3000,
-  fundedBuffer: 2000,
-  requiredTradingDays: 150,
+  startBalance: 0,
+  currentBalance: 0,
+  lossLimit: 0,
+  profitTarget: 0,
+  fundedBuffer: 0,
+  requiredTradingDays: 0,
   cycle: 1,
 };
 
