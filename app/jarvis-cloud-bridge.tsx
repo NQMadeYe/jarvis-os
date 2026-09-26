@@ -7,6 +7,7 @@ const CLOUD_KEYS = [
   "jarvis-os-state-v1",
   "jarvis-life-command-v2",
   "jarvis-life-plan-v1",
+  "jarvis-life-daily-intelligence-v1",
   "jarvis-habit-history-v1",
   "jarvis-trading-rules-v1",
   "jarvis-finance-payout-plan-v1",
@@ -124,6 +125,7 @@ function payloadDeleted(payload: unknown) {
 function dispatchRestored(key: CloudKey) {
   if (key === "jarvis-os-state-v1") window.dispatchEvent(new Event("jarvis-state-updated"));
   if (key === "jarvis-life-command-v2" || key === "jarvis-life-plan-v1") window.dispatchEvent(new Event("jarvis-life-updated"));
+  if (key === "jarvis-life-daily-intelligence-v1") window.dispatchEvent(new Event("jarvis-life-intelligence-updated"));
   if (key === "jarvis-habit-history-v1") window.dispatchEvent(new Event("jarvis-habits-updated"));
   if (key === "jarvis-trading-rules-v1") window.dispatchEvent(new Event("jarvis-trading-rules-updated"));
   window.dispatchEvent(new CustomEvent("jarvis-cloud-state-restored", { detail: { key } }));
