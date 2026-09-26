@@ -17,6 +17,7 @@ import {
   restoreTradingState,
   TradingRuntimeState,
 } from "../../../../lib/trading-runtime";
+import { replaceTradingPayouts, TradingPayout } from "../../../../lib/trading-payouts";
 
 export const runtime = "nodejs";
 
@@ -27,6 +28,7 @@ type RestoreBody = {
   finance?: FinanceRuntimeState | null;
   workforce?: WorkforceState | null;
   trading?: TradingRuntimeState | null;
+  payouts?: TradingPayout[] | null;
   pulse?: JarvisPulse | null;
   events?: RuntimeEvent[];
 };
@@ -73,6 +75,7 @@ export async function POST(request: Request) {
     finance: false,
     workforce: false,
     trading: false,
+    payouts: false,
     pulse: false,
     events: 0,
   };
@@ -111,6 +114,14 @@ export async function POST(request: Request) {
       await restoreTradingState(body.trading);
       restored.trading = true;
     }
+  }
+
+  if (Array.isArray(body.payouts)) {
+    const payouts = body.payouts
+      .filter((payout) => payout && typeof payout.id === "string" && typeof payout.firm === "string")
+      .slice(0, 500);
+    await replaceTradingPayouts(payouts);
+    restored.payouts = true;
   }
 
   if (body.pulse?.id && body.pulse.ranAt) {
