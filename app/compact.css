@@ -1415,3 +1415,111 @@
 .trading-account-actions button.is-danger{border-color:rgba(227,106,112,.42)!important;color:#e36a70!important;background:rgba(227,106,112,.055)!important}
 .trading-cloud-state.is-error{color:#de7479!important}
 .jarvis-rule-alert.is-violation{border-color:rgba(232,61,67,.72)!important}
+
+
+/* Donye trading rules checklist under Events. */
+.trading-rules-checklist{display:grid;gap:6px}
+.trading-rules-checklist label{
+  display:grid;
+  grid-template-columns:18px minmax(0,1fr);
+  gap:8px;
+  align-items:start;
+  cursor:pointer;
+  padding:7px 8px;
+  border:1px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.016);
+  transition:border-color .16s ease,background .16s ease,opacity .16s ease;
+}
+.trading-rules-checklist label:hover{border-color:rgba(0,229,255,.28);background:rgba(0,229,255,.025)}
+.trading-rules-checklist input{position:absolute;opacity:0;pointer-events:none}
+.trading-rule-check{
+  width:16px;
+  height:16px;
+  border:1px solid rgba(255,255,255,.28);
+  display:grid;
+  place-items:center;
+  color:#fff;
+  margin-top:1px;
+  background:rgba(0,0,0,.24);
+}
+.trading-rules-checklist label.is-checked .trading-rule-check{
+  border-color:rgba(0,229,255,.72);
+  background:rgba(0,229,255,.14);
+  box-shadow:0 0 9px rgba(0,229,255,.13);
+}
+.trading-rules-checklist label p{
+  margin:0;
+  font-size:.65rem;
+  line-height:1.32;
+  color:#dfe5e8;
+}
+.trading-rules-checklist label p b{
+  display:inline-block;
+  min-width:24px;
+  margin-right:4px;
+  color:#00e5ff;
+  font-size:.56rem;
+  letter-spacing:.08em;
+}
+.trading-rules-checklist label.is-checked p{opacity:.62}
+
+/* Four-question daily trading review. */
+.journal-review{display:grid;gap:9px;margin-top:10px}
+.journal-question{
+  display:grid;
+  gap:6px;
+  padding:9px;
+  border:1px solid rgba(255,255,255,.075);
+  background:rgba(255,255,255,.015);
+}
+.journal-question>span{
+  font-size:.58rem;
+  letter-spacing:.1em;
+  color:#cfd8dc;
+  font-weight:700;
+}
+.journal-question textarea{
+  width:100%;
+  min-height:64px;
+  resize:vertical;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.26);
+  color:#f4f6f7;
+  padding:8px 9px;
+  font:inherit;
+  font-size:.68rem;
+  line-height:1.4;
+  outline:none;
+}
+.journal-question textarea:focus{
+  border-color:rgba(0,229,255,.42);
+  box-shadow:0 0 0 1px rgba(0,229,255,.06);
+}
+.journal-question textarea::placeholder{color:rgba(225,233,237,.34)}
+.journal-rating-question{gap:9px}
+.journal-stars{
+  display:flex;
+  align-items:center;
+  gap:3px;
+}
+.journal-stars button{
+  appearance:none;
+  border:0;
+  background:transparent;
+  color:rgba(255,255,255,.26);
+  padding:2px;
+  line-height:0;
+  cursor:pointer;
+  transition:color .14s ease,transform .12s ease,filter .14s ease;
+}
+.journal-stars button:hover{transform:scale(1.08);color:rgba(255,255,255,.62)}
+.journal-stars button.is-filled{
+  color:#fff;
+  filter:drop-shadow(0 0 5px rgba(255,255,255,.18));
+}
+.journal-stars small{
+  margin-left:8px;
+  font-size:.56rem;
+  letter-spacing:.08em;
+  color:#8d999e;
+}
