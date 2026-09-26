@@ -233,13 +233,6 @@ export default function WorkV2() {
           <Panel title={domain === "LIFE" ? "DEVELOPMENT" : "GOAL READINESS"} corner={domain}>
             {domain === "LIFE" ? <><LifeProgress /><details className={lifeStyles.foundations}><summary>DAILY FOUNDATIONS</summary><DomainGoals domain={domain} events={runtimeEvents} /></details></> : <DomainGoals domain={domain} events={runtimeEvents} />}
           </Panel>
-          <Panel title="EVENTS" corner="LIVE">
-            <div className="event-list">
-              {runtimeEvents.length > 0 ? runtimeEvents.slice(0, 5).map((event) => (
-                <Event key={event.id} text={event.summary} time={event.importance === "BACKGROUND" ? "BG" : event.domain.slice(0, 6)} />
-              )) : <><Event text="Jarvis core online" time="NOW" /><Event text="Autonomous workforce ready" time="AI" /><Event text="Finance accounts connected" time="FIN" /></>}
-            </div>
-          </Panel>
           {domain === "TRADING" ? (
             <Panel title="RULES" corner={`${tradingRuleChecks.filter(Boolean).length}/5`}>
               <div className="trading-rules-checklist">
@@ -256,7 +249,15 @@ export default function WorkV2() {
                 ))}
               </div>
             </Panel>
-          ) : null}
+          ) : (
+            <Panel title="EVENTS" corner="LIVE">
+              <div className="event-list">
+                {runtimeEvents.length > 0 ? runtimeEvents.slice(0, 5).map((event) => (
+                  <Event key={event.id} text={event.summary} time={event.importance === "BACKGROUND" ? "BG" : event.domain.slice(0, 6)} />
+                )) : <><Event text="Jarvis core online" time="NOW" /><Event text="Autonomous workforce ready" time="AI" /><Event text="Finance accounts connected" time="FIN" /></>}
+              </div>
+            </Panel>
+          )}
         </aside>
 
         <section className={`center-core ${domain === "FINANCE" ? "finance-mode" : ""} ${domain === "TRADING" ? "trading-mode" : ""} ${domain === "LIFE" ? lifeStyles.center : ""}`}>
