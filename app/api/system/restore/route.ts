@@ -20,8 +20,8 @@ import {
 
 export const runtime = "nodejs";
 
-const fallbackUrl = "https://cubkgxdhkehmzczbvczy.supabase.co";
-const fallbackPublishableKey = "sb_publishable_90f_kCgqpgfC8NvoviAyXg_anParHd2";
+const fallbackUrl = "https://plhjozsbxnycfehncisf.supabase.co";
+const fallbackPublishableKey = "sb_publishable_Gda1AR9pra1kKI4IAtdxYg_r1g4GXdR";
 
 type RestoreBody = {
   finance?: FinanceRuntimeState | null;
