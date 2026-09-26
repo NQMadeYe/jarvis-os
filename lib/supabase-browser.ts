@@ -1,7 +1,7 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-const fallbackUrl = "https://cubkgxdhkehmzczbvczy.supabase.co";
-const fallbackPublishableKey = "sb_publishable_90f_kCgqpgfC8NvoviAyXg_anParHd2";
+const fallbackUrl = "https://plhjozsbxnycfehncisf.supabase.co";
+const fallbackPublishableKey = "sb_publishable_Gda1AR9pra1kKI4IAtdxYg_r1g4GXdR";
 
 let browserClient: SupabaseClient | null = null;
 
